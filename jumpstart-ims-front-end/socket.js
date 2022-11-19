@@ -6,9 +6,12 @@ import { WebSocketServer } from 'ws';
 const app = express();
 const server = http.createServer(app);
 
+console.log("\n================================================")
+console.log("Starting WebSocket Server...")
 const wss = new WebSocketServer({
     server: server
 });
+console.log("Websocket Server Successfully Started...");
 
 let connCollection = {};
 
@@ -18,6 +21,7 @@ wss.on('connection', (ws, request) => {
         var newCollections = connCollection[request.url];
         newCollections.push(ws);
         console.log("Updated the " + request.url + ", added a new client");
+        console.log(request.url + " now has " + newCollections.length + " clients");
         connCollection = {
             ...connCollection,
             [request.url]: newCollections
@@ -67,4 +71,5 @@ function isTokenValid(token) {
 
 server.listen(3000, () => {
     console.log(`WebSocket Server listening at port 3000`);
+    console.log("================================================\n")
 });
