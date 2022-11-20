@@ -1,5 +1,7 @@
 package com.jumpstart.ims.models.payload;
 
+import java.util.Date;
+
 public class LoginPayload {
 
     public String username;
@@ -22,8 +24,8 @@ public class LoginPayload {
         this.password = password;
     }
 
-    public static LoginPayload loginSuccess(String accessToken) {
-        return new LoginSuccessPayload(accessToken);
+    public static LoginPayload loginSuccess(String accessToken, Date expiry) {
+        return new LoginSuccessPayload(accessToken, expiry);
     }
 
     public static LoginPayload loginError(String errorIn, String errorMessage) {
@@ -35,9 +37,12 @@ public class LoginPayload {
 class LoginSuccessPayload extends LoginPayload {
     public boolean authenticationSuccess = true;
     public String accessToken;
+    public Date expiry;
 
-    public LoginSuccessPayload(String accessToken) {
+    public LoginSuccessPayload(String accessToken, Date expiry) {
         this.accessToken = accessToken;
+        this.success = true;
+        this.expiry = expiry;
     }
 }
 

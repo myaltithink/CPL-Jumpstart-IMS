@@ -60,15 +60,6 @@ wss.on('connection', (ws, request) => {
 
 })
 
-function isTokenValid(token) {
-    console.log(token)
-    return axios.post('http://localhost:8080/is-token-valid', {}, {
-        headers: {
-            Authorization: token
-        }
-    });
-}
-
 server.listen(3000, () => {
     console.log(`WebSocket Server listening at port 3000`);
     console.log("================================================\n")

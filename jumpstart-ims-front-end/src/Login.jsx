@@ -1,33 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { assets } from './Assets';
 import './assets/styles/App.css';
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import GuestService from './service/GuestService';
 
 function Login() {
-const [count, setCount] = useState(0)
-
-const socket = new WebSocket('ws://localhost:3000/test');
-
-socket.addEventListener('open', ()=> {
-  console.log('connected to the websocket')
-})
-
-socket.addEventListener('message', (data) => {
-  const message = JSON.parse(data.data)
-  console.log(message)
-})
-
-
-const sendJson = ()=> {
-socket.send(JSON.stringify({
-  test: 'dwasd',
-  test2: 'vcbv',
-  test3: 'dwafawf'
-}));
-}
-
 
 const passwordHandler = (e) => {
   const password = document.getElementsByClassName("password");
@@ -43,6 +22,27 @@ const passwordHandler = (e) => {
 }
 
 const [password, setPassword] = useState({type: 'password'})
+const [form, setForm] = useState({
+  usernameError:  '',
+  passwordError: ''
+})
+
+const Login = async (e) => {
+  const form = e.target.parentElement;
+  const data = {
+    username: form[0].value,
+    password: form[1].value
+  }
+  const res = await (await GuestService.performAuthentication(data)).data;
+  if (res.success) {
+    document.cookie = `token=${res.accessToken};`;
+    window.location.href = "/test";
+    return;
+  }
+  setForm({
+    [res.errorIn + "Error"]: res.errorMessage
+  })
+}
 
 return (
   <div className="App">
@@ -55,11 +55,12 @@ return (
             <p>Manage your Jumpstart inventory by Logging on</p>
             <p>If you are having any issue, kindly send us a message using the <Link to='#'>Contact Us Page</Link> or send us a message at our email address <Link to="#">tarucisaac@gmail.com</Link></p>
           </div>
-          <form action="" className='border border-3 rounded shadow-lg  p-3'>
+          <form className='border border-3 rounded shadow-lg p-3'>
             <h3>Jumpstart IMS Login</h3>
             <div className='mb-2'>
               <label htmlFor="username">Username:</label>
               <input type="text" name='username' className='form-control'/>
+              <small className='text-danger'>{form.usernameError}</small>
             </div>
             <div className='mb-3'>
               <label htmlFor="password">Password:</label>
@@ -69,8 +70,9 @@ return (
                   {(password.type == "password")? <FontAwesomeIcon icon={faEyeSlash}/>: <FontAwesomeIcon icon={faEye}/>}
                 </button>
               </div>
+              <small className='text-danger'>{form.passwordError}</small>
             </div>
-            <button type='submit' className='btn btn-primary w-100'>Login</button>
+            <button type='button' className='btn btn-primary w-100' onClick={Login}>Login</button>
           </form>
         </div>
       </div>

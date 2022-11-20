@@ -9,4 +9,7 @@ export const assets = {
     facebookLogo: facebookLogo,
     twitterLogo: twitterLogo,
     instagramLogo: instagramLogo
-}
+};
+
+export const API = "http://localhost:8080";
+export const WS = "ws://localhost:3000";

@@ -58,7 +58,9 @@ public class UserService {
 
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        return LoginPayload.loginSuccess(tokenProvider.createToken(auth.getPrincipal().toString()));
+        Token token = tokenProvider.createToken(auth.getPrincipal().toString());
+
+        return LoginPayload.loginSuccess(token.getToken(), token.getExpiry());
     }
 
 }

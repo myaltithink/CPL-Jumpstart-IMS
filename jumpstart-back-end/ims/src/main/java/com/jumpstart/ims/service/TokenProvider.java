@@ -27,13 +27,16 @@ public class TokenProvider {
     @Autowired
     private UserRepository userRepository;
 
-    public String createToken(String username) {
-        return Jwts.builder()
+    public Token createToken(String username) {
+        Date expiry = new Date(new Date().getTime() + properties.getJwt().getExpiresIn());
+        String token = Jwts.builder()
                 .setSubject(Base64.getEncoder().encodeToString(username.getBytes()))
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(new Date().getTime() + properties.getJwt().getExpiresIn()))
+                .setExpiration(expiry)
                 .signWith(generateTokenKey())
                 .compact();
+
+        return new Token(token, expiry);
     }
 
     private Key generateTokenKey() {
@@ -74,4 +77,31 @@ public class TokenProvider {
                 .isPresent();
 
     }
+}
+
+class Token {
+    private String token;
+    private Date expiry;
+
+    public Token(String token, Date expiry) {
+        this.token = token;
+        this.expiry = expiry;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public Date getExpiry() {
+        return expiry;
+    }
+
+    public void setExpiry(Date expiry) {
+        this.expiry = expiry;
+    }
+
 }
