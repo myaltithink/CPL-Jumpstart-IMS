@@ -8,6 +8,11 @@ import { Route, BrowserRouter, Routes} from 'react-router-dom';
 import Footer from './component/Footer'
 import AuthIndex from './auth/AuthIndex'
 import GuestService from './service/GuestService'
+import UserRoute from './component/UserRoute'
+import Denied from './Denied'
+import StoreDashboard from './auth/StoreDashboard'
+import AdminDashboard from './auth/AdminDashboard'
+import AdminRoute from './component/AdminRoute'
 
 export let socket = null;
 
@@ -23,7 +28,7 @@ function updateUserAuthentication(userAuthenticated){
     }
 }
 
-function getCookie(cookieName) {
+export function getCookie(cookieName) {
     let cookie = {};
     document.cookie.split(';').forEach(function(el) {
       let [key,value] = el.split('=');
@@ -43,7 +48,10 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Routes>
             <Route path='/'>
                 <Route index element={<Login/>}/>
-                <Route path='/test' element={<AuthIndex user={user} test="test att" test2="test 2 att"/>}/>
+                <Route path='/permission-denied' element={<Denied/>}/>
+                <Route path='/auth' element={ <UserRoute user={user} component={<AuthIndex/>}/> }/>
+                <Route path='/store-dashboard' element={ <UserRoute user={user} component={<StoreDashboard/>}/> }/>
+                <Route path='/admin-dashboard' element={ <AdminRoute user={user} component={<AdminDashboard/>}/> }/>
             </Route>
         </Routes>
         <Footer/>

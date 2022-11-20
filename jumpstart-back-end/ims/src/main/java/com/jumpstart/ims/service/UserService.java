@@ -35,7 +35,8 @@ public class UserService {
     private TokenProvider tokenProvider;
 
     public boolean registerUser(String username, String password) {
-        userRepository.save(new User(username, password, roleRepository.findByRole("ROLE_USER"), new Date()));
+        userRepository.save(new User(username, passwordEncoder.encode(password), roleRepository.findByRole("ROLE_USER"),
+                new Date()));
         Optional<User> user = userRepository.findByUsername(username);
         return user.isPresent();
     }

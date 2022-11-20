@@ -18,7 +18,8 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         return http
-                .cors().disable()
+                .cors()
+                .and()
                 .csrf().disable()
                 .formLogin().disable()
                 .httpBasic().disable()
@@ -29,7 +30,8 @@ public class SecurityConfig {
                             .requestMatchers("/auth/test", "/auth/perform-login",
                                     "/is-token-valid")
                             .permitAll()
-                            .requestMatchers("/auth/test2").authenticated();
+                            .requestMatchers("/auth/**").authenticated()
+                            .requestMatchers("/auth/add-account").hasAnyRole("ADMIN", "ROOT_ADMIN");
                 })
                 .addFilterBefore(requestFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

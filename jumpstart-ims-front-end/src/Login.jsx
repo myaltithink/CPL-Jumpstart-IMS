@@ -36,7 +36,7 @@ const Login = async (e) => {
   const res = await (await GuestService.performAuthentication(data)).data;
   if (res.success) {
     document.cookie = `token=${res.accessToken};`;
-    window.location.href = "/test";
+    window.location.href = "/auth";
     return;
   }
   setForm({

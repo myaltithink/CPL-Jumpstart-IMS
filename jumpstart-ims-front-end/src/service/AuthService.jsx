@@ -1,6 +1,17 @@
+import axios from "axios";
+import { API } from "../Assets";
+import { getCookie } from "../main";
+
+const header = {
+    headers: {
+        Authorization: "Bearer " + getCookie('token')
+    }
+}
 
 class AuthService {
-
+    static isAdmin() {
+        return axios.post(API + '/auth/is-admin', {}, header)
+    }
 }
 
 export default AuthService;

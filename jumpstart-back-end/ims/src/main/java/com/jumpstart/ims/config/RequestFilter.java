@@ -39,8 +39,6 @@ public class RequestFilter extends OncePerRequestFilter {
 
         try {
             String token = getRequestToken(request);
-            System.out.println("request filter called with token: " + token);
-
             if (StringUtils.hasText(token)) {
                 if (tokenProvider.validateToken(token)) {
                     Optional<User> user = userRepository.findByUsername(
@@ -54,7 +52,6 @@ public class RequestFilter extends OncePerRequestFilter {
 
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authentication);
-                    System.out.println("request authenticated");
                 }
             }
         } catch (Exception e) {
