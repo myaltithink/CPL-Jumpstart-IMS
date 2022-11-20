@@ -77,6 +77,7 @@ return (
         </div>
       </div>
     </div>
+    <Footer/>
   </div>
 )
 }

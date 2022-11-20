@@ -8,18 +8,18 @@ import { Route, BrowserRouter, Routes} from 'react-router-dom';
 import Footer from './component/Footer'
 import AuthIndex from './auth/AuthIndex'
 import GuestService from './service/GuestService'
-import UserRoute from './component/UserRoute'
 import Denied from './Denied'
 import StoreDashboard from './auth/StoreDashboard'
 import AdminDashboard from './auth/AdminDashboard'
-import AdminRoute from './component/AdminRoute'
+import AdminRoute from './route-handler/AdminRoute'
+import UserRoute from './route-handler/UserRoute'
+import Logout from './component/Logout'
 
 export let socket = null;
 
 let user = {
     authenticated: false
 };
-
 
 function updateUserAuthentication(userAuthenticated){
     user = {
@@ -52,8 +52,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                 <Route path='/auth' element={ <UserRoute user={user} component={<AuthIndex/>}/> }/>
                 <Route path='/store-dashboard' element={ <UserRoute user={user} component={<StoreDashboard/>}/> }/>
                 <Route path='/admin-dashboard' element={ <AdminRoute user={user} component={<AdminDashboard/>}/> }/>
+                <Route path='/logout' element={<Logout/>}/>
             </Route>
         </Routes>
-        <Footer/>
     </BrowserRouter>
 )

@@ -1,12 +1,14 @@
 import { useEffect } from "react";
+import DashboardNav from "../component/DashboardNav";
+import IMSLayout from "../component/IMSLayout";
 import { getCookie } from "../main";
 import AuthService from "../service/AuthService";
 
 export default function StoreDashboard(){
 
     return (
-        <div style={{height: '95vh'}} className="d-flex align-items-center justify-content-center p-5">
-            <h1 className="text-secondary">Store Dashboard</h1>
+        <div style={{height: "100vh"}}>
+            <IMSLayout nav={<DashboardNav user={'store'}/>}/>
         </div>
     );
 }
