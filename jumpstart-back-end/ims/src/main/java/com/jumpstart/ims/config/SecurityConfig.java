@@ -31,7 +31,7 @@ public class SecurityConfig {
                                     "/is-token-valid", "/test/**")
                             .permitAll()
                             .requestMatchers("/auth/**").authenticated()
-                            .requestMatchers("/auth/add-account").hasAnyRole("ADMIN", "ROOT_ADMIN");
+                            .requestMatchers("/auth/add-account", "/admin/**").hasAnyRole("ADMIN", "ROOT_ADMIN");
                 })
                 .addFilterBefore(requestFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

@@ -9,12 +9,13 @@ const header = {
 }
 
 class AuthService {
-    static isAdmin() {
+    isAdmin() {
         return axios.post(API + '/auth/is-admin', {}, header)
     }
+    //add a header 'Content-Type': 'multipart/form-data' to upload files
 }
 
-export default AuthService;
+export default new AuthService();
 
 
 export function connectToWS(endpoint){
