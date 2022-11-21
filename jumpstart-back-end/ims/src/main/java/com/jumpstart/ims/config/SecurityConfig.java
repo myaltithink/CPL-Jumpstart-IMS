@@ -28,7 +28,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> {
                     authorize
                             .requestMatchers("/auth/test", "/auth/perform-login",
-                                    "/is-token-valid")
+                                    "/is-token-valid", "/test/**")
                             .permitAll()
                             .requestMatchers("/auth/**").authenticated()
                             .requestMatchers("/auth/add-account").hasAnyRole("ADMIN", "ROOT_ADMIN");

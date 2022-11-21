@@ -9,6 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 
 @Entity
 public class Account {
@@ -30,6 +31,9 @@ public class Account {
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
+    @OneToOne
+    private Store store;
+
     public Account() {
     }
 
@@ -38,6 +42,14 @@ public class Account {
         this.password = password;
         this.role = role;
         this.registeredAt = registeredAt;
+    }
+
+    public void setStore(Store store) {
+        this.store = store;
+    }
+
+    public Store getStore() {
+        return store;
     }
 
     public int getId() {

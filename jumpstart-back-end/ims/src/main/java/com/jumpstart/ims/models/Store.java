@@ -35,15 +35,10 @@ public class Store {
     public Store() {
     }
 
-    public Store(int storeId, String storeName, String storeAddress, String storeContact, Inventory inventory,
-            Account account, SaleRecord saleRecord) {
-        this.storeId = storeId;
+    public Store(String storeName, String storeAddress, String storeContact) {
         this.storeName = storeName;
         this.storeAddress = storeAddress;
         this.storeContact = storeContact;
-        this.inventory = inventory;
-        this.account = account;
-        this.saleRecord = saleRecord;
     }
 
     public int getStoreId() {

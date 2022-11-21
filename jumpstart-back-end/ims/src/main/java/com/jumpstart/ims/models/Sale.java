@@ -36,8 +36,7 @@ public class Sale {
     public Sale() {
     }
 
-    public Sale(int saleId, String productName, int quantity, int total, Date soldAt, SaleRecord saleRecord) {
-        this.saleId = saleId;
+    public Sale(String productName, int quantity, int total, Date soldAt, SaleRecord saleRecord) {
         this.productName = productName;
         this.quantity = quantity;
         this.total = total;

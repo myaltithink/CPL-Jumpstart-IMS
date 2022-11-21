@@ -39,9 +39,8 @@ public class Product {
     public Product() {
     }
 
-    public Product(int productId, String productName, String imgUrl, String barcode, int quantity, Date updatedAt,
+    public Product(String productName, String imgUrl, String barcode, int quantity, Date updatedAt,
             Inventory inventory) {
-        this.productId = productId;
         this.productName = productName;
         this.imgUrl = imgUrl;
         this.barcode = barcode;

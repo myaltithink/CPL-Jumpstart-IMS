@@ -33,12 +33,9 @@ public class Inventory {
     public Inventory() {
     }
 
-    public Inventory(int inventoryId, int totalItems, Date createdAt, Store store, Set<Product> products) {
-        this.inventoryId = inventoryId;
+    public Inventory(int totalItems, Date createdAt) {
         this.totalItems = totalItems;
         this.createdAt = createdAt;
-        this.store = store;
-        this.products = products;
     }
 
     public int getInventoryId() {

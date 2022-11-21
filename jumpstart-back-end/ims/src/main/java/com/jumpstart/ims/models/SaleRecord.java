@@ -32,12 +32,9 @@ public class SaleRecord {
     public SaleRecord() {
     }
 
-    public SaleRecord(int recordId, String recordDate, int totalSale, Set<Sale> sales, Store store) {
-        this.recordId = recordId;
+    public SaleRecord(String recordDate, int totalSale) {
         this.recordDate = recordDate;
         this.totalSale = totalSale;
-        this.sales = sales;
-        this.store = store;
     }
 
     public int getRecordId() {
