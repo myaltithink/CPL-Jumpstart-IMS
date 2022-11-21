@@ -12,11 +12,13 @@ export default function SaleOfTheMonth(){
     })
 
     return (
-        <div className="d-flex justify-content-center align-items-center">
-            <div style={{padding: '40px 80px'}} className="col-12 border border-3 border-dark rounded text-center shadow" >
-                <h3>Total Sale of {saleOfTheMonth.month}</h3>
-                <h4>${saleOfTheMonth.total}</h4>
-                <button type="button" className="btn"><a href="" className="text-dark">Update Max Inventory</a></button>
+        <div style={{height: '93%'}} className="d-flex justify-content-center align-items-center m-3">
+            <div style={{padding: '40px 80px'}} className="d-flex align-items-center justify-content-center col-12 h-100 border border-3 border-dark rounded text-center shadow" >
+                <div>
+                    <h3>Total Sale of {saleOfTheMonth.month}</h3>
+                    <h4>${saleOfTheMonth.total}</h4>
+                    <button type="button" className="btn"><a href="" className="text-dark">View Sale Record </a></button>
+                </div>
              </div>
         </div>
     )

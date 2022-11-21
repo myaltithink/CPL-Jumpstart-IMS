@@ -5,7 +5,6 @@ import './assets/styles/index.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
 
 import { Route, BrowserRouter, Routes} from 'react-router-dom';
-import Footer from './component/Footer'
 import AuthIndex from './auth/AuthIndex'
 import GuestService from './service/GuestService'
 import Denied from './Denied'

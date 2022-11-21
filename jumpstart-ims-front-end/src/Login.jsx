@@ -5,6 +5,7 @@ import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link, useNavigate } from 'react-router-dom';
 import GuestService from './service/GuestService';
+import Footer from './component/Footer';
 
 function Login() {
 

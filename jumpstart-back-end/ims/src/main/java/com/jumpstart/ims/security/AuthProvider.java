@@ -13,8 +13,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import com.jumpstart.ims.models.User;
-import com.jumpstart.ims.repository.UserRepository;
+import com.jumpstart.ims.models.Account;
+import com.jumpstart.ims.repository.AccountRepository;
 
 @Component
 public class AuthProvider implements AuthenticationProvider {
@@ -23,17 +23,17 @@ public class AuthProvider implements AuthenticationProvider {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private UserRepository userRepository;
+    private AccountRepository userRepository;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         String username = authentication.getName();
         String password = authentication.getCredentials().toString();
 
-        Optional<User> user = userRepository.findByUsername(username);
+        Optional<Account> user = userRepository.findByUsername(username);
 
         if (user.isPresent()) {
-            User userData = user.get();
+            Account userData = user.get();
             if (userData.getUsername().equals(username) && passwordEncoder.matches(password, userData.getPassword())) {
                 ArrayList<GrantedAuthority> roles = new ArrayList<GrantedAuthority>();
                 roles.add(new SimpleGrantedAuthority(userData.getRole().getRole()));

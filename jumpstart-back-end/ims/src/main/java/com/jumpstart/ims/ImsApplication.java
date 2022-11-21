@@ -12,9 +12,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.jumpstart.ims.models.Role;
-import com.jumpstart.ims.models.User;
+import com.jumpstart.ims.models.Account;
 import com.jumpstart.ims.repository.RoleRepository;
-import com.jumpstart.ims.repository.UserRepository;
+import com.jumpstart.ims.repository.AccountRepository;
 
 @SpringBootApplication
 public class ImsApplication {
@@ -50,16 +50,16 @@ public class ImsApplication {
 	}
 
 	@Autowired
-	private UserRepository userRepository;
+	private AccountRepository userRepository;
 
 	private void createRootAdmin() {
 		System.out.println("Checking Root Admin...");
-		Optional<User> admin = userRepository.findByUsername("admin@gmail.com");
+		Optional<Account> admin = userRepository.findByUsername("admin@gmail.com");
 		if (!admin.isPresent()) {
 			System.out.println("Initializing Root Admin...");
 			PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
 			userRepository.save(
-					new User(
+					new Account(
 							"admin@gmail.com",
 							passwordEncoder.encode("wasdwasd"),
 							roleRepository.findByRole("ROLE_ROOT_ADMIN"),

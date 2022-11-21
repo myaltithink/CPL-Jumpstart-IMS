@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.jumpstart.ims.config.AppProperties;
-import com.jumpstart.ims.repository.UserRepository;
+import com.jumpstart.ims.repository.AccountRepository;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -25,7 +25,7 @@ public class TokenProvider {
     private AppProperties properties;
 
     @Autowired
-    private UserRepository userRepository;
+    private AccountRepository userRepository;
 
     public Token createToken(String username) {
         Date expiry = new Date(new Date().getTime() + properties.getJwt().getExpiresIn());

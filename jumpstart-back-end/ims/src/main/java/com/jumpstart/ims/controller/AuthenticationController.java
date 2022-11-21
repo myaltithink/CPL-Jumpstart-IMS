@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.jumpstart.ims.models.User;
+import com.jumpstart.ims.models.Account;
 import com.jumpstart.ims.models.payload.LoginPayload;
-import com.jumpstart.ims.repository.UserRepository;
+import com.jumpstart.ims.repository.AccountRepository;
 import com.jumpstart.ims.service.TokenProvider;
 import com.jumpstart.ims.service.UserService;
 
@@ -29,7 +29,7 @@ public class AuthenticationController {
     private TokenProvider tokenProvider;
 
     @Autowired
-    private UserRepository userRepository;
+    private AccountRepository userRepository;
 
     @PostMapping("/perform-login")
     public LoginPayload authenticateUser(@RequestBody LoginPayload loginInfo) {
@@ -39,7 +39,7 @@ public class AuthenticationController {
     @PostMapping("/is-admin")
     public boolean isTokenAdmin(@RequestHeader("Authorization") String token) {
         String processedToken = token.split("Bearer ")[1];
-        User user = userRepository
+        Account user = userRepository
                 .findByUsername(new String(Base64.getDecoder().decode(tokenProvider.getUserFromToken(processedToken))))
                 .get();
 

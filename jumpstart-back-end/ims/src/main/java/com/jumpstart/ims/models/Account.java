@@ -11,7 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
 @Entity
-public class User {
+public class Account {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,10 +30,10 @@ public class User {
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
-    public User() {
+    public Account() {
     }
 
-    public User(String username, String password, Role role, Date registeredAt) {
+    public Account(String username, String password, Role role, Date registeredAt) {
         this.username = username;
         this.password = password;
         this.role = role;

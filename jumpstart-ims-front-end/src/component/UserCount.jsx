@@ -9,7 +9,7 @@ export default function UserCount(){
     })
 
     return (
-        <div className="d-flex justify-content-center">
+        <div style={{height: '93%'}} className="d-flex justify-content-center m-2">
             <div style={{padding: '40px 80px'}} className="col-12 border border-3 border-dark rounded text-center shadow" >
                 <FontAwesomeIcon style={{fontSize: '75px'}} className="mb-2" icon={faUser}/>
                 <h2>Users</h2>

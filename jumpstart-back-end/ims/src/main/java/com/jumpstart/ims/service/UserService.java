@@ -11,16 +11,16 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.jumpstart.ims.models.User;
+import com.jumpstart.ims.models.Account;
 import com.jumpstart.ims.models.payload.LoginPayload;
 import com.jumpstart.ims.repository.RoleRepository;
-import com.jumpstart.ims.repository.UserRepository;
+import com.jumpstart.ims.repository.AccountRepository;
 
 @Service
 public class UserService {
 
     @Autowired
-    private UserRepository userRepository;
+    private AccountRepository userRepository;
 
     @Autowired
     private RoleRepository roleRepository;
@@ -35,9 +35,10 @@ public class UserService {
     private TokenProvider tokenProvider;
 
     public boolean registerUser(String username, String password) {
-        userRepository.save(new User(username, passwordEncoder.encode(password), roleRepository.findByRole("ROLE_USER"),
-                new Date()));
-        Optional<User> user = userRepository.findByUsername(username);
+        userRepository
+                .save(new Account(username, passwordEncoder.encode(password), roleRepository.findByRole("ROLE_USER"),
+                        new Date()));
+        Optional<Account> user = userRepository.findByUsername(username);
         return user.isPresent();
     }
 
@@ -46,7 +47,7 @@ public class UserService {
                 new UsernamePasswordAuthenticationToken(loginInfo.getUsername(), loginInfo.getPassword()));
 
         if (auth == null) {
-            Optional<User> user = userRepository.findByUsername(loginInfo.getUsername());
+            Optional<Account> user = userRepository.findByUsername(loginInfo.getUsername());
             if (!user.isPresent())
                 return LoginPayload.loginError("username", "The given username is not registered");
 

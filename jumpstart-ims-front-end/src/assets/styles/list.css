@@ -1,0 +1,12 @@
+.table-container {
+    overflow: auto;
+    max-height: 60vh;
+}
+
+.table-head {
+    position: sticky;
+    top: 0;
+    color: white;
+    background-color: rgb(75, 75, 75);
+}
+

@@ -15,8 +15,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.jumpstart.ims.models.User;
-import com.jumpstart.ims.repository.UserRepository;
+import com.jumpstart.ims.models.Account;
+import com.jumpstart.ims.repository.AccountRepository;
 import com.jumpstart.ims.service.TokenProvider;
 
 import jakarta.servlet.FilterChain;
@@ -31,7 +31,7 @@ public class RequestFilter extends OncePerRequestFilter {
     private TokenProvider tokenProvider;
 
     @Autowired
-    private UserRepository userRepository;
+    private AccountRepository userRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -41,7 +41,7 @@ public class RequestFilter extends OncePerRequestFilter {
             String token = getRequestToken(request);
             if (StringUtils.hasText(token)) {
                 if (tokenProvider.validateToken(token)) {
-                    Optional<User> user = userRepository.findByUsername(
+                    Optional<Account> user = userRepository.findByUsername(
                             new String(Base64.getDecoder().decode(tokenProvider.getUserFromToken(token))));
 
                     ArrayList<GrantedAuthority> roles = new ArrayList<GrantedAuthority>();

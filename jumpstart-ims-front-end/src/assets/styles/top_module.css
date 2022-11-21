@@ -1,0 +1,13 @@
+.top-module {
+    overflow: auto;
+    height: 35vh;
+    max-height: 35vh;
+}
+
+@media screen and (max-width: 991px) {
+    .top-module {
+        box-shadow: 2px -2px 30px -7px rgba(0,0,0,0.66) inset;
+        -webkit-box-shadow: 2px -2px 30px -7px rgba(0,0,0,0.66) inset;
+        -moz-box-shadow: 2px -2px 30px -7px rgba(0,0,0,0.66) inset;
+    }
+}

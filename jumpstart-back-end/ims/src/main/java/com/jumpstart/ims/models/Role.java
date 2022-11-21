@@ -20,7 +20,7 @@ public class Role {
     private String role;
 
     @OneToMany(mappedBy = "role")
-    Set<User> users;
+    Set<Account> users;
 
     public Role() {
     }
@@ -37,7 +37,7 @@ public class Role {
         return role;
     }
 
-    public Set<User> getUsers() {
+    public Set<Account> getUsers() {
         return users;
     }
 
@@ -45,7 +45,7 @@ public class Role {
         this.role = role;
     }
 
-    public void setUsers(Set<User> users) {
+    public void setUsers(Set<Account> users) {
         this.users = users;
     }
 
