@@ -10,7 +10,15 @@ const header = {
 
 class AuthService {
     isAdmin() {
-        return axios.post(API + '/auth/is-admin', {}, header)
+        return axios.post(API + '/auth/is-admin', {}, header);
+    }
+
+    getUserCount(){
+        return axios.get(API + '/admin/get-user-count', header);
+    }
+
+    getUsers(){
+        return axios.get(API + "/admin/get-users", header);
     }
     //add a header 'Content-Type': 'multipart/form-data' to upload files
 }

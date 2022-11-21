@@ -12,7 +12,7 @@ export default function DashboardNav(props){
             nav.classList.add('selected')
         }
         applySelected();
-    })
+    }, [])
 
     return (
         <div>

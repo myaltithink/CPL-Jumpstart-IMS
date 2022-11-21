@@ -1,12 +1,22 @@
 import { faUser } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useState } from "react";
+import axios from "axios";
+import { useEffect, useState } from "react";
+import AuthService from "../service/AuthService";
 
 export default function UserCount(){
 
     const [userCount, setUserCount] = useState({
-        count: 123,
+        count: 0,
     })
+
+    useEffect(() => {
+        const getCount = async () => {
+            const result = await (await AuthService.getUserCount()).data;
+            setUserCount({count: result.userCount})
+        }
+        getCount()
+    }, [])
 
     return (
         <div style={{height: '93%'}} className="d-flex justify-content-center m-2">

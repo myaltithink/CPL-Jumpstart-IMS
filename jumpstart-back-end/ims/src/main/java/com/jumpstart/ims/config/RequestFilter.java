@@ -52,7 +52,12 @@ public class RequestFilter extends OncePerRequestFilter {
 
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authentication);
+                } else {
+                    System.out.println("token is invalid");
                 }
+            } else {
+                System.out.println("no token");
+                System.out.println(token);
             }
         } catch (Exception e) {
             System.out.println("An Error occured while trying to authenticate the request");

@@ -20,7 +20,7 @@ export default function ContentHandler(props){
                             </div>
                         </div>
                     </div>
-                    <ListHandler/>
+                    <ListHandler list="users"/>
                 </div>
             : 
                 <div>
