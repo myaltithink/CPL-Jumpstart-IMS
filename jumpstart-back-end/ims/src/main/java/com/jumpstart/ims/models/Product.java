@@ -30,6 +30,9 @@ public class Product {
     private int quantity;
 
     @Column(nullable = false)
+    private int price;
+
+    @Column(nullable = false)
     private Date updatedAt;
 
     @ManyToOne
@@ -39,14 +42,23 @@ public class Product {
     public Product() {
     }
 
-    public Product(String productName, String imgUrl, String barcode, int quantity, Date updatedAt,
+    public Product(String productName, String imgUrl, String barcode, int quantity, int price, Date updatedAt,
             Inventory inventory) {
         this.productName = productName;
         this.imgUrl = imgUrl;
         this.barcode = barcode;
         this.quantity = quantity;
+        this.price = price;
         this.updatedAt = updatedAt;
         this.inventory = inventory;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
     }
 
     public int getProductId() {

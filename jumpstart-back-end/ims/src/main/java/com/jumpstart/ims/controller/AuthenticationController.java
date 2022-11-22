@@ -46,7 +46,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/add-store")
-    public Map<String, Object> addStore(NewStore storeInfo) {
+    public Map<String, Object> addStore(@RequestBody NewStore storeInfo) {
         return userService.registerUser(storeInfo);
     }
 

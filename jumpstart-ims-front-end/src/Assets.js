@@ -13,3 +13,5 @@ export const assets = {
 
 export const API = "http://localhost:8080";
 export const WS = "ws://localhost:3000";
+export const emptyRegex = /^\s*$/;
+export const numberRegex = /^[0-9]*$/;

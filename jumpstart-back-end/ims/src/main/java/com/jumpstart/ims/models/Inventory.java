@@ -21,6 +21,9 @@ public class Inventory {
     @Column(nullable = false)
     private int totalItems;
 
+    @Column(nullable = false, columnDefinition = "integer default 100")
+    private int capacity;
+
     @Column(nullable = false)
     private Date createdAt;
 
@@ -33,9 +36,18 @@ public class Inventory {
     public Inventory() {
     }
 
-    public Inventory(int totalItems, Date createdAt) {
+    public Inventory(int totalItems, Date createdAt, int capacity) {
         this.totalItems = totalItems;
         this.createdAt = createdAt;
+        this.capacity = capacity;
+    }
+
+    public void setCapacity(int capacity) {
+        this.capacity = capacity;
+    }
+
+    public int getCapacity() {
+        return capacity;
     }
 
     public int getInventoryId() {

@@ -13,6 +13,10 @@ class AuthService {
         return axios.post(API + '/auth/is-admin', {}, header);
     }
 
+    registerStore(data){
+        return axios.post(API + "/auth/add-store", data, header);
+    }
+
     getUserCount(){
         return axios.get(API + '/admin/get-user-count', header);
     }
@@ -20,24 +24,45 @@ class AuthService {
     getUsers(){
         return axios.get(API + "/admin/get-users", header);
     }
+
+    getInventoryCapacity(){
+        return axios.post(API + "/store/get-inventory-capacity", {}, header);
+    }
+
+    updateInventoryCapacity(data){
+        return axios.post(API + "/store/update-inventory-capacity", data, header);
+    }
+
+    addProduct(data){
+        return axios.post(API + "/store/add-product", data, header);
+    }
+
+    getProducts(){
+        return axios.post(API + "/store/get-products", {}, header);
+    }
     //add a header 'Content-Type': 'multipart/form-data' to upload files
+
 }
 
 export default new AuthService();
 
+async function checkAdminPermission(){
+    const isAdmin = (await new AuthService().isAdmin()).data;
+    if (!isAdmin) {
+        return false;
+    }
+}
+
+
 
 export function connectToWS(endpoint){
     const socket = new WebSocket('ws://localhost:3000' + endpoint);
-
-    socket.addEventListener('open', ()=> {
-      console.log('connected to the websocket with endpoint ' + endpoint);
-      return socket;
-    })
-
+    
     socket.addEventListener('error', () => {
         console.log('failed to connect to websocket with endpoint ' + endpoint);
-        return null;
     })
+
+    return socket;
 
     //socket.addEventListener('message', (data) => {
     //  const message = JSON.parse(data.data)

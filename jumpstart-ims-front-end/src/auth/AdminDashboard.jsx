@@ -9,8 +9,6 @@ import AuthService from "../service/AuthService";
 
 export default function AdminDashboard(){
 
-  
-
     return (
         <div style={{height: '100vh'}}>
             <IMSLayout nav={<DashboardNav user={'admin'}/>}  content={<ContentHandler/>}/>

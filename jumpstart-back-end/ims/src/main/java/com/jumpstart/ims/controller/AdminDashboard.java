@@ -2,7 +2,6 @@ package com.jumpstart.ims.controller;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.jumpstart.ims.models.Account;
 import com.jumpstart.ims.models.Store;
-import com.jumpstart.ims.repository.AccountRepository;
 import com.jumpstart.ims.repository.StoreRepository;
 
 @RestController
@@ -33,7 +31,8 @@ public class AdminDashboard {
         if (stores.size() != 0) {
             stores.forEach((store) -> {
                 Account account = store.getAccount();
-                users.add(new UserDTO(store.getStoreName(), store.getStoreAddress(), store.getStoreContact(),
+                users.add(new UserDTO(store.getStoreName(), store.getStoreAddress(),
+                        store.getStoreContact(),
                         account.getUsername(), dateFormat.format(account.getRegisteredAt())));
             });
         }

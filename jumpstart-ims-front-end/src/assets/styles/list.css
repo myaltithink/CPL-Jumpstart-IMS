@@ -3,6 +3,10 @@
     max-height: 57vh;
 }
 
+.table-container-full {
+    max-height: 97vh;
+}
+
 .table-head {
     position: sticky;
     top: -1px;

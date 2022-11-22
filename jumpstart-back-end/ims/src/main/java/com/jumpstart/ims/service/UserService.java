@@ -1,6 +1,7 @@
 package com.jumpstart.ims.service;
 
 import java.text.SimpleDateFormat;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -67,7 +68,7 @@ public class UserService {
                         roleRepository.findByRole("ROLE_USER"),
                         new Date()));
 
-        Inventory inventory = inventoryRepository.save(new Inventory(0, new Date()));
+        Inventory inventory = inventoryRepository.save(new Inventory(0, new Date(), 100));
 
         Date date = new Date();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMMM - YYYY");
@@ -122,6 +123,16 @@ public class UserService {
         Token token = tokenProvider.createToken(auth.getPrincipal().toString());
 
         return LoginPayload.loginSuccess(token.getToken(), token.getExpiry());
+    }
+
+    public Inventory getInventory(String token) {
+        Account user = userRepository
+                .findByUsername(new String(Base64.getDecoder().decode(tokenProvider.getUserFromToken(token))))
+                .get();
+
+        Store userStore = user.getStore();
+
+        return userStore.getInventory();
     }
 
 }

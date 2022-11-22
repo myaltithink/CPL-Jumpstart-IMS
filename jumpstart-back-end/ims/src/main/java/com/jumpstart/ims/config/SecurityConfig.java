@@ -30,7 +30,7 @@ public class SecurityConfig {
                             .requestMatchers("/auth/test", "/auth/perform-login",
                                     "/is-token-valid", "/test/**")
                             .permitAll()
-                            .requestMatchers("/auth/**").authenticated()
+                            .requestMatchers("/auth/**", "/store/**").authenticated()
                             .requestMatchers("/auth/add-account", "/admin/**").hasAnyRole("ADMIN", "ROOT_ADMIN");
                 })
                 .addFilterBefore(requestFilter, UsernamePasswordAuthenticationFilter.class)

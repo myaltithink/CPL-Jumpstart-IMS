@@ -13,6 +13,10 @@ import AdminDashboard from './auth/AdminDashboard'
 import AdminRoute from './route-handler/AdminRoute'
 import UserRoute from './route-handler/UserRoute'
 import Logout from './component/Logout'
+import IMSLayout from './component/IMSLayout'
+import DashboardNav from './component/DashboardNav'
+import ContentHandler from './component/ContentHandler'
+import UserInventory from './auth/UserInventory'
 
 export let socket = null;
 
@@ -51,6 +55,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                 <Route path='/auth' element={ <UserRoute user={user} component={<AuthIndex/>}/> }/>
                 <Route path='/store-dashboard' element={ <UserRoute user={user} component={<StoreDashboard/>}/> }/>
                 <Route path='/admin-dashboard' element={ <AdminRoute user={user} component={<AdminDashboard/>}/> }/>
+                <Route path='/my-inventory' element={<UserRoute user={user} component={<UserInventory/>}/>}/>
                 <Route path='/logout' element={<Logout/>}/>
             </Route>
         </Routes>

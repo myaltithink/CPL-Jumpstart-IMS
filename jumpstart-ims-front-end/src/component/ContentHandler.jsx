@@ -22,7 +22,9 @@ export default function ContentHandler(props){
                     </div>
                     <ListHandler list="users"/>
                 </div>
-            : 
+            : null }
+
+            {(window.location.pathname.includes("/store-dashboard"))? 
                 <div>
                     <div>
                         <div className="d-flex justify-content-center">
@@ -33,9 +35,22 @@ export default function ContentHandler(props){
                             </div>
                         </div>
                     </div>
-                    <ListHandler/>
+                    <ListHandler list="products"/>
                 </div>
-            }
+            : null}
+
+            {(window.location.pathname.includes('/my-inventory'))? 
+                <div>
+                    <div>
+                        <div className="d-flex justify-content-center">
+                            <div className="col-12 col-lg-11 top-module pt-2 d-block d-lg-flex justify-content-evenly">
+                                <div className="w-100"><InventoryCapacity/></div>
+                            </div>
+                        </div>
+                    </div>
+                    <ListHandler list="products"/>
+                </div>
+            : null}
         </div>
     )
 
