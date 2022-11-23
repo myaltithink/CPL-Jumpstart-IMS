@@ -3,27 +3,26 @@ package com.jumpstart.ims.controller;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jumpstart.ims.models.Account;
 import com.jumpstart.ims.models.Inventory;
 import com.jumpstart.ims.models.Product;
-import com.jumpstart.ims.models.Store;
+import com.jumpstart.ims.models.SaleRecord;
 import com.jumpstart.ims.repository.AccountRepository;
 import com.jumpstart.ims.repository.InventoryRepository;
 import com.jumpstart.ims.repository.ProductRepository;
@@ -49,12 +48,20 @@ public class StoreDashboard {
     @Autowired
     private ProductRepository productRepository;
 
-    @PostMapping("/get-inventory-capacity")
-    public Map<String, Object> getInventoryCapacity(@RequestHeader("Authorization") String token) {
+    @PostMapping(value = { "/get-inventory-capacity", "get-inventory-capacity/{username}" })
+    public Map<String, Object> getInventoryCapacity(@RequestHeader("Authorization") String token,
+            @PathVariable("username") Optional<String> username) {
         Map<String, Object> result = new HashMap<String, Object>();
         String processedToken = token.split("Bearer ")[1];
 
-        Inventory userInventory = userService.getInventory(processedToken);
+        Inventory userInventory = null;
+
+        if (username.isPresent()) {
+            Optional<Account> userAccount = accountRepository.findByUsername(username.get());
+            userInventory = userAccount.get().getStore().getInventory();
+        } else {
+            userInventory = userService.getInventory(processedToken);
+        }
 
         result.put("totalItems", userInventory.getTotalItems());
         result.put("capacity", userInventory.getCapacity());
@@ -76,10 +83,19 @@ public class StoreDashboard {
         return result;
     }
 
-    @PostMapping("/get-products")
-    public ArrayList<ProductDTO> getProducts(@RequestHeader("Authorization") String token) {
+    @PostMapping(value = { "/get-products", "/get-products/{username}" })
+    public ArrayList<ProductDTO> getProducts(@RequestHeader("Authorization") String token,
+            @PathVariable("username") Optional<String> username) {
         String processedToken = token.split("Bearer ")[1];
-        Inventory inventory = userService.getInventory(processedToken);
+        Inventory inventory = null;
+
+        if (username.isPresent()) {
+            Optional<Account> userAccount = accountRepository.findByUsername(username.get());
+            inventory = userAccount.get().getStore().getInventory();
+        } else {
+            inventory = userService.getInventory(processedToken);
+        }
+
         ArrayList<ProductDTO> productList = new ArrayList<ProductDTO>();
         SimpleDateFormat dateformat = new SimpleDateFormat("MMM-dd-yyyy HH:mm:ss");
 
@@ -89,6 +105,13 @@ public class StoreDashboard {
             productList.add(new ProductDTO(product.getProductName(), product.getBarcode(), product.getQuantity(),
                     product.getPrice(), dateformat.format(product.getUpdatedAt())));
         }
+
+        productList.sort(new Comparator<ProductDTO>() {
+            @Override
+            public int compare(ProductDTO p1, ProductDTO p2) {
+                return p1.getProductName().compareTo(p2.getProductName());
+            }
+        });
 
         return productList;
     }
@@ -115,6 +138,118 @@ public class StoreDashboard {
         return result;
 
     }
+
+    @PostMapping("/total-sale")
+    public Map<String, Object> getTotalSale(@RequestHeader("Authorization") String token) {
+        Map<String, Object> result = new HashMap<String, Object>();
+        String processedToken = token.split("Bearer ")[1];
+        Account userAccount = accountRepository.findByUsername(
+                new String(Base64.getDecoder().decode(tokenProvider.getUserFromToken(processedToken)))).get();
+
+        String month = "";
+        int total = 0;
+        Set<SaleRecord> saleRecords = userAccount.getStore().getSaleRecord();
+        Iterator<SaleRecord> iterator = saleRecords.iterator();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM - YYYY");
+        String currentMonth = dateFormat.format(new Date());
+
+        while (iterator.hasNext()) {
+            SaleRecord saleRecord = iterator.next();
+            if (saleRecord.getRecordDate().equals(currentMonth)) {
+                month = saleRecord.getRecordDate();
+                total = saleRecord.getTotalSale();
+                break;
+            }
+        }
+
+        result.put("month", month);
+        result.put("total", total);
+
+        return result;
+    }
+
+    @PostMapping("/get-store-sale-records")
+    public ArrayList<SaleRecordDTO> getSaleRecords(@RequestHeader("Authorization") String token) {
+        String processedToken = token.split("Bearer ")[1];
+        ArrayList<SaleRecordDTO> result = new ArrayList<>();
+        Account userAccount = accountRepository.findByUsername(
+                new String(Base64.getDecoder().decode(tokenProvider.getUserFromToken(processedToken)))).get();
+
+        Set<SaleRecord> saleRecords = userAccount.getStore().getSaleRecord();
+        Iterator<SaleRecord> saleRecordsIterator = saleRecords.iterator();
+
+        while (saleRecordsIterator.hasNext()) {
+            SaleRecord record = saleRecordsIterator.next();
+            result.add(new SaleRecordDTO(record.getRecordDate(), record.getTotalSale(), record.getSales().size(),
+                    record.getCreatedAt(), "view-record-" + record.getRecordDate()));
+        }
+
+        result.sort(new Comparator<SaleRecordDTO>() {
+            @Override
+            public int compare(SaleRecordDTO rec1, SaleRecordDTO rec2) {
+                return rec1.getSaleRecord().compareTo(rec2.getSaleRecord());
+            }
+        });
+
+        return result;
+    }
+}
+
+class SaleRecordDTO {
+    private String saleRecord;
+    private int total;
+    private int transactions;
+    private Date createdAt;
+    private String action;
+
+    public SaleRecordDTO(String saleRecord, int total, int transactions, Date createdAt, String action) {
+        this.saleRecord = saleRecord;
+        this.total = total;
+        this.transactions = transactions;
+        this.createdAt = createdAt;
+        this.action = action;
+    }
+
+    public String getAction() {
+        return action;
+    }
+
+    public void setAction(String action) {
+        this.action = action;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public String getSaleRecord() {
+        return saleRecord;
+    }
+
+    public void setSaleRecord(String saleRecord) {
+        this.saleRecord = saleRecord;
+    }
+
+    public int getTotal() {
+        return total;
+    }
+
+    public void setTotal(int total) {
+        this.total = total;
+    }
+
+    public int getTransactions() {
+        return transactions;
+    }
+
+    public void setTransactions(int transactions) {
+        this.transactions = transactions;
+    }
+
 }
 
 class ProductDTO {

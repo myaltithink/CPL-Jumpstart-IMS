@@ -1,11 +1,15 @@
 package com.jumpstart.ims.service;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -70,11 +74,6 @@ public class UserService {
 
         Inventory inventory = inventoryRepository.save(new Inventory(0, new Date(), 100));
 
-        Date date = new Date();
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMMM - YYYY");
-
-        SaleRecord saleRecord = saleRecordRepository.save(new SaleRecord(simpleDateFormat.format(date), 0));
-
         Store store = storeRepository.save(new Store(
                 storeInfo.getStoreName(),
                 storeInfo.getStoreAddress(),
@@ -88,14 +87,10 @@ public class UserService {
         inventoryRepository.save(inventory);
         result.put("inventory_created", true);
 
-        saleRecord.setStore(store);
-        saleRecordRepository.save(saleRecord);
-        result.put("sale_record_created", true);
-
         store.setAccount(account);
         store.setInventory(inventory);
-        store.setSaleRecord(saleRecord);
         storeRepository.save(store);
+
         result.put("store_created", true);
         result.put("registration_success", true);
 
@@ -122,6 +117,40 @@ public class UserService {
 
         Token token = tokenProvider.createToken(auth.getPrincipal().toString());
 
+        Account userAcc = userRepository.findByUsername(auth.getPrincipal().toString()).get();
+
+        if (userAcc.getRole().getRole().equals("ROLE_USER")) {
+            Set<SaleRecord> userRecords = userAcc.getStore().getSaleRecord();
+            ArrayList<SaleRecord> arrayedList = new ArrayList<>(userRecords);
+
+            arrayedList.sort(new Comparator<SaleRecord>() {
+                @Override
+                public int compare(SaleRecord rec1, SaleRecord rec2) {
+                    return rec1.getCreatedAt().compareTo(rec2.getCreatedAt());
+                }
+            });
+
+            if (userRecords == null) {
+                userRecords = new HashSet<SaleRecord>();
+            }
+            SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM - YYYY");
+
+            boolean outdated = false;
+
+            if (arrayedList.size() != 0) {
+                SaleRecord record = arrayedList.get(0);
+                outdated = !record.getRecordDate().equals(dateFormat.format(new Date()));
+            }
+
+            if (userRecords.isEmpty() || outdated) {
+                SaleRecord newRecord = new SaleRecord(dateFormat.format(new Date()), 0, new Date());
+                Store store = userAcc.getStore();
+                newRecord.setStoreSaleRecord(store);
+                newRecord = saleRecordRepository.save(newRecord);
+                userRecords.add(newRecord);
+                store.setSaleRecord(userRecords);
+            }
+        }
         return LoginPayload.loginSuccess(token.getToken(), token.getExpiry());
     }
 
@@ -134,5 +163,4 @@ public class UserService {
 
         return userStore.getInventory();
     }
-
 }

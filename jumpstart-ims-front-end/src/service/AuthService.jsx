@@ -29,6 +29,10 @@ class AuthService {
         return axios.post(API + "/store/get-inventory-capacity", {}, header);
     }
 
+    getUserInventoryCapacity(username){
+        return axios.post(API + "/store/get-inventory-capacity/" + username, {}, header);
+    }
+
     updateInventoryCapacity(data){
         return axios.post(API + "/store/update-inventory-capacity", data, header);
     }
@@ -40,6 +44,24 @@ class AuthService {
     getProducts(){
         return axios.post(API + "/store/get-products", {}, header);
     }
+
+    getInventories(){
+        return axios.post(API + "/admin/get-user-inventories", {}, header);
+    }
+
+    getUserInventory(username){
+        return axios.post(API + "/store/get-products/" + username, {}, header);
+    }
+
+    getSaleRecord(){
+        return axios.post(API + "/store/total-sale", {}, header);
+    }
+
+    getStoreSaleRecords(){
+        return axios.post(API + "/store/get-store-sale-records", {}, header);
+    }
+
+    getSaleRecordOf(month){}
     //add a header 'Content-Type': 'multipart/form-data' to upload files
 
 }

@@ -17,6 +17,10 @@ import IMSLayout from './component/IMSLayout'
 import DashboardNav from './component/DashboardNav'
 import ContentHandler from './component/ContentHandler'
 import UserInventory from './auth/UserInventory'
+import UserInventories from './auth/UserInventories'
+import RecordSales from './auth/RecordedSales'
+import RecordedSales from './auth/RecordedSales'
+import SaleRecords from './auth/SaleRecords'
 
 export let socket = null;
 
@@ -56,6 +60,11 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                 <Route path='/store-dashboard' element={ <UserRoute user={user} component={<StoreDashboard/>}/> }/>
                 <Route path='/admin-dashboard' element={ <AdminRoute user={user} component={<AdminDashboard/>}/> }/>
                 <Route path='/my-inventory' element={<UserRoute user={user} component={<UserInventory/>}/>}/>
+                <Route path='/user-inventories' element={<AdminRoute user={user} component={<UserInventories/>}/>}/>
+                <Route path='/view/user-inventory' element={<AdminRoute user={user} component={<UserInventory/>}/>}/>
+                <Route path='/sale-records' element={<UserRoute user={user} component={<RecordSales/>}/>}/>
+                <Route path='/sale-records/record-list' element={<UserRoute user={user} component={<SaleRecords/>}/>}/>
+                <Route path='/view/sale-record' element={<UserRoute user={user} component={<SaleRecords/>}/>}/>
                 <Route path='/logout' element={<Logout/>}/>
             </Route>
         </Routes>

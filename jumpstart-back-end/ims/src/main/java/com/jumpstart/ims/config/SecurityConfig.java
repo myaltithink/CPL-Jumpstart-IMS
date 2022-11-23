@@ -31,7 +31,9 @@ public class SecurityConfig {
                                     "/is-token-valid", "/test/**")
                             .permitAll()
                             .requestMatchers("/auth/**", "/store/**").authenticated()
-                            .requestMatchers("/auth/add-account", "/admin/**").hasAnyRole("ADMIN", "ROOT_ADMIN");
+                            .requestMatchers("/auth/add-account", "/admin/**", "/get-products/{username}",
+                                    "get-inventory-capacity/{username}")
+                            .hasAnyRole("ADMIN", "ROOT_ADMIN");
                 })
                 .addFilterBefore(requestFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

@@ -7,12 +7,13 @@ import 'react-circular-progressbar/dist/styles.css';
 import { emptyRegex, numberRegex } from "../Assets";
 import AuthService, { connectToWS } from "../service/AuthService";
 
-export default function InventoryCapacity(){
+export default function InventoryCapacity(props){
 
     const [inventory, setInventory] = useState({
         items: 0,
         max: 0,
-        percent: 0
+        percent: 0,
+        isAdmin: false
     });
 
     const [modal, setModal] = useState({
@@ -43,11 +44,18 @@ export default function InventoryCapacity(){
 
     useEffect(() => {
         const getInventory = async () => {
-            const inventoryData = await (await AuthService.getInventoryCapacity()).data;
+            let inventoryData = null;
+            if (props.view == "admin") {
+                inventoryData = await (await AuthService.getUserInventoryCapacity(sessionStorage.getItem("view-inventory"))).data;
+            }else {
+                inventoryData = await (await AuthService.getInventoryCapacity()).data;
+            }
+            const isViewAdmin = await (await AuthService.isAdmin()).data
             setInventory({
                 items: inventoryData.totalItems,
                 max: inventoryData.capacity,
-                percent: Math.ceil((inventoryData.totalItems / inventoryData.capacity) * 100)
+                percent: Math.ceil((inventoryData.totalItems / inventoryData.capacity) * 100),
+                isAdmin: isViewAdmin
             })
             setFormData({
                 ...formData,
@@ -221,12 +229,19 @@ export default function InventoryCapacity(){
                     </div>
                     <h4>Inventory Capacity</h4>
                     <h5>{inventory.items} / {inventory.max}</h5>
-                    <button type="button" className="btn" onClick={handleModal}><a className="capacity-modal text-dark">Update Max Inventory</a></button>
-                    
-                    {(window.location.pathname.includes("/my-inventory"))? 
-                        <button type="button" className="btn" onClick={handleModal}><a className="product-modal text-dark">Add Product</a></button>
+                    {(!inventory.isAdmin)? 
+                        <div>
+                            <button type="button" className="btn" onClick={handleModal}><a className="capacity-modal text-dark">Update Max Inventory</a></button>
+
+                            {(window.location.pathname.includes("/my-inventory"))? 
+                                <button type="button" className="btn" onClick={handleModal}><a className="product-modal text-dark">Add Product</a></button>
+                            : 
+                                <button type="button" className="btn"><a href="/my-inventory" className="text-dark">View Inventory</a></button>
+                            }
+                        </div>
                     : 
-                        <button type="button" className="btn"><a href="/my-inventory" className="text-dark">View Inventory</a></button>}
+                        null
+                    }
                 </div>
             </div>
              

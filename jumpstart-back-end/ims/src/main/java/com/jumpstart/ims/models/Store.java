@@ -1,10 +1,13 @@
 package com.jumpstart.ims.models;
 
+import java.util.Set;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 
 @Entity
@@ -29,8 +32,8 @@ public class Store {
     @OneToOne
     private Account account;
 
-    @OneToOne
-    private SaleRecord saleRecord;
+    @OneToMany(mappedBy = "storeSaleRecord")
+    private Set<SaleRecord> saleRecord;
 
     public Store() {
     }
@@ -89,11 +92,11 @@ public class Store {
         this.account = account;
     }
 
-    public SaleRecord getSaleRecord() {
+    public Set<SaleRecord> getSaleRecord() {
         return saleRecord;
     }
 
-    public void setSaleRecord(SaleRecord saleRecord) {
+    public void setSaleRecord(Set<SaleRecord> saleRecord) {
         this.saleRecord = saleRecord;
     }
 

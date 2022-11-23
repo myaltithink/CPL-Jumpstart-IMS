@@ -51,6 +51,59 @@ export default function ContentHandler(props){
                     <ListHandler list="products"/>
                 </div>
             : null}
+
+            {(window.location.pathname.includes('/user-inventories'))? 
+                <div>
+                    <ListHandler list="inventories" size="full"/>
+                </div>
+            : null}
+
+            {(window.location.pathname.includes('/view/user-inventory'))? 
+                <div>
+                    <div>
+                        <div className="d-flex justify-content-center">
+                            <div className="col-12 col-lg-11 top-module pt-2 d-block d-lg-flex justify-content-evenly">
+                                <div className="w-100"><InventoryCapacity view="admin"/></div>
+                            </div>
+                        </div>
+                    </div>
+                    <ListHandler list="user-inventory"/>
+                </div>
+            : null}
+
+            {(window.location.pathname == '/sale-records')? 
+                <div>
+                    <ListHandler list="sale-records" size="full"/>
+                </div>
+            : null}
+
+            {(window.location.pathname.includes('/view/sale-record'))? 
+                <div>
+                    <div>
+                        <div className="d-flex justify-content-center">
+                            <div className="col-12 col-lg-11 top-module pt-2 d-block d-lg-flex justify-content-evenly">
+                                <div className="w-100"><SaleOfTheMonth view="user"/></div>
+                            </div>
+                        </div>
+                    </div>
+                    <ListHandler list="sales-of"/>
+                </div>
+            : null}
+
+            {(window.location.pathname.includes('/sale-records/record-list'))? 
+                <div>
+                    <div>
+                        <div className="d-flex justify-content-center">
+                            <div className="col-12 col-lg-11 top-module pt-2 d-block d-lg-flex justify-content-evenly">
+                                <div className="w-100"><SaleOfTheMonth view="user"/></div>
+                            </div>
+                        </div>
+                    </div>
+                    <ListHandler list=""/>
+                </div>
+            : null}
+
+            
         </div>
     )
 

@@ -1,11 +1,11 @@
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useState } from 'react';
+import { Button } from 'react-bootstrap';
 import '../assets/styles/list.css'
 import AuthService, { connectToWS } from '../service/AuthService';
 import Loading from './Loading';
 
-let count = 0;
 
 export default function ListHandler(props){
 
@@ -16,9 +16,12 @@ export default function ListHandler(props){
         isLoading: true
     })
 
+    let count = 0;
+
     const [socket, setSocket] = useState({
         userSocket: null,
         prodSocket: null,
+        inventories: null,
     })
 
 
@@ -34,7 +37,7 @@ export default function ListHandler(props){
                         isLoading: false,
                         title: ["Store Name", "Address", "Contact", "Username", "Registered At"]
                     })
-                    break;
+                break;
 
                 case "products":
                     const prodRes = await (await AuthService.getProducts()).data;
@@ -45,36 +48,93 @@ export default function ListHandler(props){
                         title: ["Product Name", "Barcode", "Quantity", "Price", "Updated At"]
                     })
                 break;
+
+                case "inventories": 
+                    const inventories = await (await AuthService.getInventories()).data;
+                    setList({
+                        originalList: inventories,
+                        list: inventories,
+                        isLoading: false,
+                        title: ["Store Name", "Username", "Total Items", "Capacity", "Created At", "Action"]
+                    })
+                break;
+
+                case "user-inventory":
+                    const username = sessionStorage.getItem("view-data");
+                    const userProds = await (await AuthService.getUserInventory(username)).data
+                    setList({
+                        originalList: userProds,
+                        list: userProds,
+                        isLoading: false,
+                        title: ["Product Name", "Barcode", "Quantity", "Price", "Updated At"]
+                    })
+                break;
+
+                case "sale-records":
+                    const saleRecords = await (await AuthService.getStoreSaleRecords()).data;
+                    setList({
+                        originalList: saleRecords,
+                        list: saleRecords,
+                        isLoading: false,
+                        title: ["Sale Record", "Total", "Transactions", "Created At", "Action"]
+                    })
+                break;
+
+                case "sales-of":
+
+                break;
             }
         }
 
-        const userWS = connectToWS("/admin-dashboard/update");
+        let userWS = null;
+        let prodWS = null;
+        let invWS = null;
 
-        
-        userWS.addEventListener('open', () => {
-            console.log("list handler has connected to user websocket")
-        })
-        
-        userWS.addEventListener('message', (message) => {
-            getData();
-        })
+        const openWS = async () => {
+            const pathname = window.location.pathname;
 
-        const prodWS = connectToWS("/user/inventory/product/update");
-        
-        prodWS.addEventListener('open', () => {
-            console.log("list handler has connected to product websocket")
-        })
-        
-        prodWS.addEventListener('message', (message) => {
-            console.log(message)
-            getData();
-        })
+            if (await (await AuthService.isAdmin()).data || pathname.includes("/admin-dashboard")) {
+                userWS = connectToWS("/admin-dashboard/update");
+    
+                userWS.addEventListener('open', () => {
+                    console.log("list handler has connected to user websocket")
+                })
+                
+                userWS.addEventListener('message', (message) => {
+                    getData();
+                })
+
+                invWS = connectToWS("/admin/user-inventories/update");
+                
+                invWS.addEventListener('open', () => {
+                    console.log("list handler is now listening for inventories update")
+                })
+
+                invWS.addEventListener("message", (message) => {
+                    getData();
+                })
+            }
+            
+            if (pathname.includes('/store-dashboard') || pathname.includes('/my-inventory') ||pathname.includes("/view/user-inventory")) {
+                prodWS = connectToWS("/user/inventory/product/update");
+                
+                prodWS.addEventListener('open', () => { 
+                    console.log("list handler has connected to product websocket")
+                })
+                
+                prodWS.addEventListener('message', (message) => {
+                    getData();
+                })
+            }
+        }
+
 
         setSocket({
             userSocket: userWS,
             prodSocket: prodWS
         })
         getData();
+        openWS();
     }, [])
 
     const searchHandler = (e) => {
@@ -95,6 +155,21 @@ export default function ListHandler(props){
         })
     }
 
+    const handleView = (e) => {
+        if (e.target.id.includes("view-inventory-")) {
+            sessionStorage.setItem("view-data", e.target.id.split("-")[2])
+            window.location.href = "/view/user-inventory"
+        }
+
+        console.log(e.target.id.split("-"))
+
+        if (e.target.id.includes("view-record-")) {
+            const id = e.target.id.split("-");
+            const date = id[2] + "-" + id[3];
+            sessionStorage.setItem("view-data", date);
+            window.location.href = "/view/sale-record";
+        }
+    }
 
     return (
         <div id="list-container">
@@ -109,7 +184,7 @@ export default function ListHandler(props){
                 </div>
             </div>
             <div className="d-flex justify-content-center align-items-center">
-                <div className="table-container col-12 col-lg-11 pe-2 ps-2">
+                <div className={`${(props.size == "full")? "table-container-full" : "table-container"} col-12 col-lg-11 pe-2 ps-2`}>
                     <table className="table table-striped border">
                       <thead className='table-head'>
                         <tr>
@@ -133,9 +208,17 @@ export default function ListHandler(props){
                                 <tr key={count}>
                                   <th scope="row">{count}</th>
                                   {keys.map((key) => {
-                                    return (
-                                        <th key={Math.random()} scope="row">{item[key]}</th>
-                                    )
+                                    if (key != "action") {
+                                        return (
+                                            <th key={Math.random()} scope="row">{item[key]}</th>
+                                        )
+                                    }else {
+                                        return (
+                                            <th key={Math.random()} scope="row">
+                                                <Button id={item[key]} onClick={handleView}>View</Button>
+                                            </th>
+                                        )
+                                    }
                                   })}
                                 </tr>
                             )

@@ -4,7 +4,8 @@
 }
 
 .table-container-full {
-    max-height: 97vh;
+    overflow: auto;
+    max-height: 92vh;
 }
 
 .table-head {

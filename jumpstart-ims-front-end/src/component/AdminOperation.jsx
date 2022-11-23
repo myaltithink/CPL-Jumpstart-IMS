@@ -9,7 +9,8 @@ import AuthService, { connectToWS } from "../service/AuthService";
 export default function AdminOperation(){
     
     const [socket, setSocket] = useState({
-        socket: null
+        socket: null,
+        inventorySocket: null
     });
 
     const [show, setShow] = useState(false);
@@ -39,11 +40,17 @@ export default function AdminOperation(){
     useEffect(() => {
         const connectToWebSocket = () => {
             const socket = connectToWS("/admin-dashboard/update")
-            setSocket({
-                socket: socket
-            })
             socket.addEventListener('open', () => {
-                console.log("admin operations has connected to websocket");
+                console.log("admin operations has connected to user update socket");
+            })
+
+            const inventorySocket = connectToWS("/admin/user-inventories/update");
+            inventorySocket.addEventListener('open', () => {
+                console.log("admin operations has connected to inventory update socket")
+            })
+            setSocket({
+                socket: socket,
+                inventorySocket: inventorySocket
             })
         }
         connectToWebSocket()
@@ -55,7 +62,6 @@ export default function AdminOperation(){
             if(e.target.id == "submit"){
                 const res = await (await AuthService.registerStore(formData)).data;
                 if (!res.registration_success) {
-                    console.log(res)
                     setFormError({
                         ...formError,
                         usernameError: res.message,
@@ -64,6 +70,7 @@ export default function AdminOperation(){
                     return;
                 }else {
                     socket.socket.send(JSON.stringify({message: "NEW_USER"}));
+                    socket.inventorySocket.send(JSON.stringify({message: "NEW_USER"}));
                 }
             }
         }
@@ -116,7 +123,7 @@ export default function AdminOperation(){
                 <div className="pt-4 pb-4">   
                     <h2>Operations</h2>
                     <button className="btn btn-primary col-10 m-2 pt-3 pb-3" style={{fontSize: '20px'}} onClick={handleModal}>Add New User</button>
-                    <button className="btn btn-primary col-10 m-2 pt-3 pb-3" style={{fontSize: '20px'}}>View User Inventory</button>
+                    <button className="btn btn-primary col-10 m-2 pt-3 pb-3" style={{fontSize: '20px'}}><a href="/user-inventories" className="text-light text-decoration-none">View User Inventory</a></button>
                 </div>
              </div>
 

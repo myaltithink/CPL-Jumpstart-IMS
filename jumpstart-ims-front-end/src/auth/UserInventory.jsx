@@ -6,7 +6,11 @@ export default function UserInventory(){
     
     return(
         <div style={{height: "100vh"}}>
-            <IMSLayout nav={<DashboardNav user={'user'}/>}  content={<ContentHandler/>}/>
+            {(window.location.pathname == "/view/user-inventory")? 
+                <IMSLayout nav={<DashboardNav user={'admin'}/>}  content={<ContentHandler/>}/>
+            : 
+                <IMSLayout nav={<DashboardNav user={'user'}/>}  content={<ContentHandler/>}/>
+            }
         </div>
     )
 }
