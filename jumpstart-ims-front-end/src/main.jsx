@@ -21,6 +21,8 @@ import UserInventories from './auth/UserInventories'
 import RecordSales from './auth/RecordedSales'
 import RecordedSales from './auth/RecordedSales'
 import SaleRecords from './auth/SaleRecords'
+import TermsAndCondition from './TermsAndCondition'
+import ContactUs from './ContactUs'
 
 export let socket = null;
 
@@ -65,6 +67,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                 <Route path='/sale-records' element={<UserRoute user={user} component={<RecordSales/>}/>}/>
                 <Route path='/sale-records/record-list' element={<UserRoute user={user} component={<SaleRecords/>}/>}/>
                 <Route path='/view/sale-record' element={<UserRoute user={user} component={<SaleRecords/>}/>}/>
+                <Route path='/terms-and-condition' element={<TermsAndCondition/>}/>
+                <Route path='/contact-us' element={<ContactUs/>}/>
                 <Route path='/logout' element={<Logout/>}/>
             </Route>
         </Routes>
