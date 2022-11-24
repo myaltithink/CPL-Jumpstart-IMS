@@ -77,7 +77,7 @@ export default function ContentHandler(props){
                 </div>
             : null}
 
-            {(window.location.pathname.includes('/view/sale-record'))? 
+            {(window.location.pathname.includes('/view/sale-record') || window.location.pathname.includes('/sale-records/record-list'))? 
                 <div>
                     <div>
                         <div className="d-flex justify-content-center">
@@ -89,20 +89,6 @@ export default function ContentHandler(props){
                     <ListHandler list="sales-of"/>
                 </div>
             : null}
-
-            {(window.location.pathname.includes('/sale-records/record-list'))? 
-                <div>
-                    <div>
-                        <div className="d-flex justify-content-center">
-                            <div className="col-12 col-lg-11 top-module pt-2 d-block d-lg-flex justify-content-evenly">
-                                <div className="w-100"><SaleOfTheMonth view="user"/></div>
-                            </div>
-                        </div>
-                    </div>
-                    <ListHandler list=""/>
-                </div>
-            : null}
-
             
         </div>
     )

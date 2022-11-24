@@ -23,7 +23,7 @@ public class SaleRecord {
     private String recordDate;
 
     @Column(nullable = false)
-    private int totalSale;
+    private float totalSale;
 
     @Column(nullable = false)
     private Date createdAt;
@@ -38,7 +38,7 @@ public class SaleRecord {
     public SaleRecord() {
     }
 
-    public SaleRecord(String recordDate, int totalSale, Date createdAt) {
+    public SaleRecord(String recordDate, float totalSale, Date createdAt) {
         this.recordDate = recordDate;
         this.totalSale = totalSale;
         this.createdAt = createdAt;
@@ -68,11 +68,11 @@ public class SaleRecord {
         this.recordDate = recordDate;
     }
 
-    public int getTotalSale() {
+    public float getTotalSale() {
         return totalSale;
     }
 
-    public void setTotalSale(int totalSale) {
+    public void setTotalSale(float totalSale) {
         this.totalSale = totalSale;
     }
 

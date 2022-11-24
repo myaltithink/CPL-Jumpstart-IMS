@@ -22,6 +22,7 @@ export default function ListHandler(props){
         userSocket: null,
         prodSocket: null,
         inventories: null,
+        salesSocket: null,
     })
 
 
@@ -81,7 +82,14 @@ export default function ListHandler(props){
                 break;
 
                 case "sales-of":
-
+                    const record = sessionStorage.getItem("view-data");
+                    const records = await (await AuthService.getTransactions(record)).data
+                    setList({
+                        originalList: records,
+                        list: records,
+                        isLoading: false,
+                        title: ["Product Name", "Quantity", "Price", "Total", "Soldt At"]
+                    })
                 break;
             }
         }
@@ -89,6 +97,7 @@ export default function ListHandler(props){
         let userWS = null;
         let prodWS = null;
         let invWS = null;
+        let saleWS = null;
 
         const openWS = async () => {
             const pathname = window.location.pathname;
@@ -126,12 +135,26 @@ export default function ListHandler(props){
                     getData();
                 })
             }
+
+            if (pathname.includes("/sale-records")) {
+                saleWS = connectToWS("/sales/update");
+
+                saleWS.addEventListener("open", () => {
+                    console.log("list handler is now listening for sales update");
+                })
+
+                saleWS.addEventListener("message", (message) => {
+                    getData();
+                });
+            }
         }
 
 
         setSocket({
             userSocket: userWS,
-            prodSocket: prodWS
+            prodSocket: prodWS,
+            inventories: invWS,
+            salesSocket: saleWS
         })
         getData();
         openWS();

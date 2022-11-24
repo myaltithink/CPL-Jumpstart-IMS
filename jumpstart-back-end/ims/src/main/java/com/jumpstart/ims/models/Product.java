@@ -30,7 +30,7 @@ public class Product {
     private int quantity;
 
     @Column(nullable = false)
-    private int price;
+    private float price;
 
     @Column(nullable = false)
     private Date updatedAt;
@@ -42,7 +42,7 @@ public class Product {
     public Product() {
     }
 
-    public Product(String productName, String imgUrl, String barcode, int quantity, int price, Date updatedAt,
+    public Product(String productName, String imgUrl, String barcode, int quantity, float price, Date updatedAt,
             Inventory inventory) {
         this.productName = productName;
         this.imgUrl = imgUrl;
@@ -53,11 +53,11 @@ public class Product {
         this.inventory = inventory;
     }
 
-    public int getPrice() {
+    public float getPrice() {
         return price;
     }
 
-    public void setPrice(int price) {
+    public void setPrice(float price) {
         this.price = price;
     }
 

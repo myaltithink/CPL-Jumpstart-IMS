@@ -24,7 +24,10 @@ public class Sale {
     private int quantity;
 
     @Column(nullable = false)
-    private int total;
+    private float price;
+
+    @Column(nullable = false)
+    private float total;
 
     @Column(nullable = false)
     private Date soldAt;
@@ -36,12 +39,13 @@ public class Sale {
     public Sale() {
     }
 
-    public Sale(String productName, int quantity, int total, Date soldAt, SaleRecord saleRecord) {
+    public Sale(String productName, int quantity, float price, Date soldAt, SaleRecord saleRecord) {
         this.productName = productName;
         this.quantity = quantity;
-        this.total = total;
+        this.price = price;
         this.soldAt = soldAt;
         this.saleRecord = saleRecord;
+        this.total = price * quantity;
     }
 
     public int getSaleId() {
@@ -68,11 +72,19 @@ public class Sale {
         this.quantity = quantity;
     }
 
-    public int getTotal() {
+    public float getPrice() {
+        return price;
+    }
+
+    public void setPrice(float price) {
+        this.price = price;
+    }
+
+    public float getTotal() {
         return total;
     }
 
-    public void setTotal(int total) {
+    public void setTotal(float total) {
         this.total = total;
     }
 

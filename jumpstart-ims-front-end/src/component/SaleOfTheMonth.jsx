@@ -5,13 +5,16 @@ import { Button, Form, Modal } from "react-bootstrap";
 import { CircularProgressbar } from "react-circular-progressbar";
 import 'react-circular-progressbar/dist/styles.css';
 import { emptyRegex, numberRegex } from "../Assets";
-import AuthService from "../service/AuthService";
+import AuthService, { connectToWS } from "../service/AuthService";
 
 export default function SaleOfTheMonth(){
 
     const [saleOfTheMonth, setSaleOfTheMonth] = useState({
         month: '',
         total: 0
+    })
+    const [socket, setSocket] = useState({
+        salesSocket: null
     })
 
     useEffect(() => {
@@ -21,11 +24,27 @@ export default function SaleOfTheMonth(){
                 month: record.month,
                 total: record.total
             });
+            sessionStorage.setItem("view-data", record.month)
+        }
+        const connectoToSocket = () => {
+            let salesWS = connectToWS("/sales/update");
+
+            salesWS.addEventListener("open", () => {
+                console.log("total sales is now listening for updates")
+            })
+    
+            salesWS.addEventListener("message", () => {
+                getRecord();
+            })
+            setSocket({
+                salesSocket: salesWS
+            })
         }
         getRecord();
+        connectoToSocket();
     }, [])
 
-    const [show, setShow] = useState(true)
+    const [show, setShow] = useState(false)
 
     const [formData, setFormData] = useState({
         prodName: '',
@@ -38,8 +57,22 @@ export default function SaleOfTheMonth(){
         hasError: true
     });
 
+    const handleModal = async (e) => {
+        if (e != undefined || e != null) {
+            if (e.target.id == "submit") {
+                const data = {
+                    recordName: saleOfTheMonth.month,
+                    productName: formData.prodName,
+                    quantity: formData.quantity,
+                    price: formData.price
+                }
+                const res = await (await AuthService.addTransaction(data)).data
+                if (res.transactionSuccess) {
+                    socket.salesSocket.send(JSON.stringify({message: "NEW_TRANSACTION"}));
+                }
+            }    
+        }
 
-    const handleModal = () => {
         setShow(!show)
     }
 
@@ -49,6 +82,7 @@ export default function SaleOfTheMonth(){
         let invalid = false;
         if (emptyRegex.test(input.value)) {
             setFormData({
+                ...formData,
                 [input.id]: input.value,
                 [input.id + "Error"]: "This field is required",
                 hasError: true
@@ -60,6 +94,7 @@ export default function SaleOfTheMonth(){
         if (input.id == "quantity"){
             if (!numberRegex.test(input.value)) {
                 setFormData({
+                    ...formData,
                     [input.id]: input.value,
                     [input.id + "Error"]: "Invalid Value",
                     hasError: true
@@ -73,6 +108,7 @@ export default function SaleOfTheMonth(){
             if (input.value.includes("-") || input.value.includes("+")) {
                 if (!numberRegex.test(input.value)) {
                     setFormData({
+                        ...formData,
                         [input.id]: input.value,
                         [input.id + "Error"]: "Invalid Value",
                         hasError: true
@@ -82,8 +118,8 @@ export default function SaleOfTheMonth(){
                 }
             }
         }
-
         setFormData({
+            ...formData,
             [input.id]: input.value,
             [input.id + "Error"]: "",
             hasError: invalid

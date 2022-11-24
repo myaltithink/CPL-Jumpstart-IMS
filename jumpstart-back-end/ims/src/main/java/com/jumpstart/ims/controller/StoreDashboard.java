@@ -22,10 +22,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.jumpstart.ims.models.Account;
 import com.jumpstart.ims.models.Inventory;
 import com.jumpstart.ims.models.Product;
+import com.jumpstart.ims.models.Sale;
 import com.jumpstart.ims.models.SaleRecord;
+import com.jumpstart.ims.models.Store;
 import com.jumpstart.ims.repository.AccountRepository;
 import com.jumpstart.ims.repository.InventoryRepository;
 import com.jumpstart.ims.repository.ProductRepository;
+import com.jumpstart.ims.repository.SaleRecordRepository;
+import com.jumpstart.ims.repository.SaleRepository;
 import com.jumpstart.ims.service.TokenProvider;
 import com.jumpstart.ims.service.UserService;
 
@@ -47,6 +51,12 @@ public class StoreDashboard {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private SaleRepository saleRepository;
+
+    @Autowired
+    private SaleRecordRepository saleRecordRepository;
 
     @PostMapping(value = { "/get-inventory-capacity", "get-inventory-capacity/{username}" })
     public Map<String, Object> getInventoryCapacity(@RequestHeader("Authorization") String token,
@@ -147,7 +157,7 @@ public class StoreDashboard {
                 new String(Base64.getDecoder().decode(tokenProvider.getUserFromToken(processedToken)))).get();
 
         String month = "";
-        int total = 0;
+        float total = 0;
         Set<SaleRecord> saleRecords = userAccount.getStore().getSaleRecord();
         Iterator<SaleRecord> iterator = saleRecords.iterator();
         SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM - YYYY");
@@ -193,16 +203,198 @@ public class StoreDashboard {
 
         return result;
     }
+
+    @PostMapping("/add-transaction")
+    public Map<String, Object> addTransaction(@RequestHeader("Authorization") String token,
+            @RequestBody NewTransaction newTransaction) {
+        Map<String, Object> result = new HashMap<String, Object>();
+
+        String processedToken = token.split("Bearer ")[1];
+        Store store = userService.getInventory(processedToken).getStore();
+        Set<SaleRecord> records = store.getSaleRecord();
+        Iterator<SaleRecord> recordIterator = records.iterator();
+        System.out.println(records.size());
+
+        SaleRecord record = null;
+
+        while (recordIterator.hasNext()) {
+            SaleRecord recordData = recordIterator.next();
+            if (newTransaction.getRecordName().equals(recordData.getRecordDate())) {
+                record = recordData;
+                break;
+            }
+        }
+
+        if (record == null) {
+            result.put("transactionSuccess", false);
+            result.put("message", "Failed to find Sale Record with a record date of " + newTransaction.getRecordName());
+            return result;
+        }
+
+        Set<Sale> sales = record.getSales();
+        Sale newSale = saleRepository.save(new Sale(newTransaction.getProductName(), newTransaction.getQuantity(),
+                newTransaction.getPrice(), new Date(), record));
+
+        sales.add(newSale);
+
+        record.setTotalSale(record.getTotalSale() + newSale.getTotal());
+        record.setSales(sales);
+        saleRecordRepository.save(record);
+        records.remove(record);
+        records.add(record);
+        store.setSaleRecord(records);
+
+        result.put("transactionSuccess", true);
+        return result;
+    }
+
+    @PostMapping("/get-transactions/{record}")
+    public ArrayList<SaleDTO> getTransactions(@RequestHeader("Authorization") String token,
+            @PathVariable("record") String record) {
+        ArrayList<SaleDTO> sales = new ArrayList<>();
+        String processedToken = token.split("Bearer ")[1];
+        Set<SaleRecord> records = userService.getInventory(processedToken).getStore().getSaleRecord();
+        Iterator<SaleRecord> recordIterator = records.iterator();
+
+        SaleRecord recordInfo = null;
+        while (recordIterator.hasNext()) {
+            SaleRecord recordData = recordIterator.next();
+            if (record.equals(recordData.getRecordDate())) {
+                recordInfo = recordData;
+                break;
+            }
+        }
+
+        if (recordInfo == null) {
+            return sales;
+        }
+
+        Set<Sale> salesRecord = recordInfo.getSales();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MMM-dd-yyyy HH:mm:ss");
+
+        ArrayList<Sale> arrayedSale = new ArrayList<>(salesRecord);
+        arrayedSale.sort(new Comparator<Sale>() {
+            @Override
+            public int compare(Sale sale1, Sale sale2) {
+                return sale1.getSoldAt().compareTo(sale2.getSoldAt());
+            }
+        });
+
+        arrayedSale.forEach((saleRecord) -> {
+            sales.add(new SaleDTO(saleRecord.getProductName(), saleRecord.getQuantity(), saleRecord.getTotal(),
+                    saleRecord.getPrice(), dateFormat.format(saleRecord.getSoldAt())));
+        });
+
+        return sales;
+    }
+}
+
+class SaleDTO {
+
+    private String productName;
+    private int quantity;
+    private float price;
+    private float total;
+    private String soldAt;
+
+    public SaleDTO(String productName, int quantity, float total, float price, String soldAt) {
+        this.productName = productName;
+        this.quantity = quantity;
+        this.price = price;
+        this.soldAt = soldAt;
+        this.total = total;
+    }
+
+    public float getTotal() {
+        return total;
+    }
+
+    public void setTotal(float total) {
+        this.total = total;
+    }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public float getPrice() {
+        return price;
+    }
+
+    public void setPrice(float price) {
+        this.price = price;
+    }
+
+    public String getSoldAt() {
+        return soldAt;
+    }
+
+    public void setSoldAt(String soldAt) {
+        this.soldAt = soldAt;
+    }
+
+}
+
+class NewTransaction {
+    private String recordName;
+    private String productName;
+    private int quantity;
+    private float price;
+
+    public String getRecordName() {
+        return recordName;
+    }
+
+    public void setRecordName(String recordName) {
+        this.recordName = recordName;
+    }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public float getPrice() {
+        return price;
+    }
+
+    public void setPrice(float price) {
+        this.price = price;
+    }
+
 }
 
 class SaleRecordDTO {
     private String saleRecord;
-    private int total;
+    private float total;
     private int transactions;
     private Date createdAt;
     private String action;
 
-    public SaleRecordDTO(String saleRecord, int total, int transactions, Date createdAt, String action) {
+    public SaleRecordDTO(String saleRecord, float total, int transactions, Date createdAt, String action) {
         this.saleRecord = saleRecord;
         this.total = total;
         this.transactions = transactions;
@@ -234,11 +426,11 @@ class SaleRecordDTO {
         this.saleRecord = saleRecord;
     }
 
-    public int getTotal() {
+    public float getTotal() {
         return total;
     }
 
-    public void setTotal(int total) {
+    public void setTotal(float total) {
         this.total = total;
     }
 
@@ -256,13 +448,13 @@ class ProductDTO {
     private String productName;
     private String barcode;
     private int quantity;
-    private int price;
+    private float price;
     private String updatedAt;
 
     public ProductDTO() {
     }
 
-    public ProductDTO(String productName, String barcode, int quantity, int price, String updatedAt) {
+    public ProductDTO(String productName, String barcode, int quantity, float price, String updatedAt) {
         this.productName = productName;
         this.barcode = barcode;
         this.quantity = quantity;
@@ -294,11 +486,11 @@ class ProductDTO {
         this.quantity = quantity;
     }
 
-    public int getPrice() {
+    public float getPrice() {
         return price;
     }
 
-    public void setPrice(int price) {
+    public void setPrice(float price) {
         this.price = price;
     }
 
