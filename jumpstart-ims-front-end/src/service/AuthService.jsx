@@ -69,6 +69,14 @@ class AuthService {
         return axios.post(API + "/store/get-transactions/" + record, {}, header);
     }
 
+    updateProduct(data) {
+        return axios.post(API + "/store/edit-product", data, header);
+    }
+
+    deleteProduct(data) {
+        return axios.post(API + "/store/delete-product", data, header);
+    }
+
     getSaleRecordOf(month){}
     //add a header 'Content-Type': 'multipart/form-data' to upload files
 

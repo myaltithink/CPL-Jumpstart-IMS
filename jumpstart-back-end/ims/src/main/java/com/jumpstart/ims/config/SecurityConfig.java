@@ -11,33 +11,34 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 public class SecurityConfig {
 
-    @Autowired
-    private RequestFilter requestFilter;
+        @Autowired
+        private RequestFilter requestFilter;
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        @Bean
+        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        return http
-                .cors()
-                .and()
-                .csrf().disable()
-                .formLogin().disable()
-                .httpBasic().disable()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .authorizeHttpRequests(authorize -> {
-                    authorize
-                            .requestMatchers("/auth/test", "/auth/perform-login",
-                                    "/is-token-valid", "/test/**")
-                            .permitAll()
-                            .requestMatchers("/auth/**", "/store/**").authenticated()
-                            .requestMatchers("/auth/add-account", "/admin/**", "/get-products/{username}",
-                                    "get-inventory-capacity/{username}")
-                            .hasAnyRole("ADMIN", "ROOT_ADMIN");
-                })
-                .addFilterBefore(requestFilter, UsernamePasswordAuthenticationFilter.class)
-                .build();
+                return http
+                                .cors()
+                                .and()
+                                .csrf().disable()
+                                .formLogin().disable()
+                                .httpBasic().disable()
+                                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                                .and()
+                                .authorizeHttpRequests(authorize -> {
+                                        authorize
+                                                        .requestMatchers("/auth/test", "/auth/perform-login",
+                                                                        "/is-token-valid", "/contact-us", "/test/**")
+                                                        .permitAll()
+                                                        .requestMatchers("/auth/**", "/store/**").authenticated()
+                                                        .requestMatchers("/auth/add-account", "/admin/**",
+                                                                        "/get-products/{username}",
+                                                                        "get-inventory-capacity/{username}")
+                                                        .hasAnyRole("ADMIN", "ROOT_ADMIN");
+                                })
+                                .addFilterBefore(requestFilter, UsernamePasswordAuthenticationFilter.class)
+                                .build();
 
-    }
+        }
 
 }

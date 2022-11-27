@@ -46,7 +46,7 @@ export default function InventoryCapacity(props){
         const getInventory = async () => {
             let inventoryData = null;
             if (props.view == "admin") {
-                inventoryData = await (await AuthService.getUserInventoryCapacity(sessionStorage.getItem("view-inventory"))).data;
+                inventoryData = await (await AuthService.getUserInventoryCapacity(sessionStorage.getItem("view-data"))).data;
             }else {
                 inventoryData = await (await AuthService.getInventoryCapacity()).data;
             }

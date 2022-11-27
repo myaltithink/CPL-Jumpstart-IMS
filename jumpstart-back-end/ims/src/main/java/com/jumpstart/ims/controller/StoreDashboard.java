@@ -139,7 +139,7 @@ public class StoreDashboard {
                 product.getQuantity(), product.getPrice(), new Date(), inventory));
 
         products.add(newProduct);
-        inventory.setTotalItems(products.size());
+        inventory.setTotalItems(inventory.getTotalItems() + newProduct.getQuantity());
         inventoryRepository.save(inventory);
         result.put("newProduct",
                 new ProductDTO(newProduct.getProductName(), newProduct.getBarcode(), newProduct.getQuantity(),
@@ -286,6 +286,71 @@ public class StoreDashboard {
         });
 
         return sales;
+    }
+
+    @PostMapping("/edit-product")
+    private Map<String, Object> editProduct(@RequestHeader("Authorization") String token,
+            @RequestBody ProductDTO productData) {
+        Map<String, Object> result = new HashMap<String, Object>();
+        String processedToken = token.split("Bearer ")[1];
+        Iterator<Product> products = userService.getInventory(processedToken).getProducts().iterator();
+        boolean quantityError = false;
+
+        while (products.hasNext()) {
+            Product product = products.next();
+            if (product.getBarcode().equals(productData.getBarcode())) {
+                Inventory inventory = product.getInventory();
+                int newTotal = (inventory.getTotalItems() - product.getQuantity()) + productData.getQuantity();
+                if (newTotal > inventory.getCapacity()) {
+                    quantityError = true;
+                    break;
+                }
+                if (product.getQuantity() != productData.getQuantity()) {
+                    inventory.setTotalItems(inventory.getTotalItems() - product.getQuantity());
+                    inventory.setTotalItems(inventory.getTotalItems() + productData.getQuantity());
+                    inventoryRepository.save(inventory);
+                }
+                product.setProductName(productData.getProductName());
+                product.setBarcode(productData.getBarcode());
+                product.setQuantity(productData.getQuantity());
+                product.setPrice(productData.getPrice());
+                productRepository.save(product);
+                result.put("updated", true);
+                break;
+            }
+        }
+
+        if (quantityError) {
+            result.put("updated", false);
+            result.put("update_error", "The total quantity of all products has exceeded the inventory capacity");
+        }
+
+        if (result.size() == 0) {
+            result.put("updated", false);
+            result.put("update_error", "Barcode is not editable");
+        }
+        return result;
+    }
+
+    @PostMapping("/delete-product")
+    private Map<String, Object> deleteProduct(@RequestHeader("Authorization") String token,
+            @RequestBody ProductDTO productData) {
+        Map<String, Object> result = new HashMap<String, Object>();
+        String processedToken = token.split("Bearer ")[1];
+        Iterator<Product> products = userService.getInventory(processedToken).getProducts().iterator();
+
+        while (products.hasNext()) {
+            Product product = products.next();
+            if (product.getBarcode().equals(productData.getBarcode())) {
+                Inventory inventory = product.getInventory();
+                inventory.setTotalItems(inventory.getTotalItems() - product.getQuantity());
+                inventoryRepository.save(inventory);
+                productRepository.delete(product);
+                result.put("deleted", true);
+                break;
+            }
+        }
+        return result;
     }
 }
 
@@ -450,6 +515,7 @@ class ProductDTO {
     private int quantity;
     private float price;
     private String updatedAt;
+    private String action = "delete/edit";
 
     public ProductDTO() {
     }
@@ -460,6 +526,14 @@ class ProductDTO {
         this.quantity = quantity;
         this.price = price;
         this.updatedAt = updatedAt;
+    }
+
+    public String getAction() {
+        return action;
+    }
+
+    public void setAction(String action) {
+        this.action = action;
     }
 
     public String getProductName() {

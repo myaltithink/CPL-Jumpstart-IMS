@@ -18,6 +18,10 @@ class GuestService {
         });
     }
 
+    static sendMessage(data){
+        return axios.post(API + '/contact-us', data);
+    }
+
 }
 
 export default GuestService;

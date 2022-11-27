@@ -1,7 +1,7 @@
-import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
+import { faMagnifyingGlass, faPencil, faTrash, faTrashCan } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useState } from 'react';
-import { Button } from 'react-bootstrap';
+import { Alert, Button, Form, Modal } from 'react-bootstrap';
 import '../assets/styles/list.css'
 import AuthService, { connectToWS } from '../service/AuthService';
 import Loading from './Loading';
@@ -13,7 +13,8 @@ export default function ListHandler(props){
         title: [],
         list: [],
         originalList: [],
-        isLoading: true
+        isLoading: true,
+        isViewable: false,
     })
 
     let count = 0;
@@ -23,6 +24,7 @@ export default function ListHandler(props){
         prodSocket: null,
         inventories: null,
         salesSocket: null,
+        invCapacitySocket: null
     })
 
 
@@ -36,17 +38,20 @@ export default function ListHandler(props){
                         originalList: res,
                         list: res,
                         isLoading: false,
+                        isViewable: false,
                         title: ["Store Name", "Address", "Contact", "Username", "Registered At"]
                     })
                 break;
 
                 case "products":
                     const prodRes = await (await AuthService.getProducts()).data;
+                    let titles = ["Product Name", "Barcode", "Quantity", "Price", "Updated At", "Action"];
                     setList({
                         originalList: prodRes,
                         list: prodRes,
                         isLoading: false,
-                        title: ["Product Name", "Barcode", "Quantity", "Price", "Updated At"]
+                        isViewable: false,
+                        title: titles
                     })
                 break;
 
@@ -56,6 +61,7 @@ export default function ListHandler(props){
                         originalList: inventories,
                         list: inventories,
                         isLoading: false,
+                        isViewable: true,
                         title: ["Store Name", "Username", "Total Items", "Capacity", "Created At", "Action"]
                     })
                 break;
@@ -67,7 +73,8 @@ export default function ListHandler(props){
                         originalList: userProds,
                         list: userProds,
                         isLoading: false,
-                        title: ["Product Name", "Barcode", "Quantity", "Price", "Updated At"]
+                        isViewable: false,
+                        title: ["Product Name", "Barcode", "Quantity", "Price", "Updated At", "Action"]
                     })
                 break;
 
@@ -77,6 +84,7 @@ export default function ListHandler(props){
                         originalList: saleRecords,
                         list: saleRecords,
                         isLoading: false,
+                        isViewable: true,
                         title: ["Sale Record", "Total", "Transactions", "Created At", "Action"]
                     })
                 break;
@@ -88,6 +96,7 @@ export default function ListHandler(props){
                         originalList: records,
                         list: records,
                         isLoading: false,
+                        isViewable: false,
                         title: ["Product Name", "Quantity", "Price", "Total", "Soldt At"]
                     })
                 break;
@@ -98,6 +107,7 @@ export default function ListHandler(props){
         let prodWS = null;
         let invWS = null;
         let saleWS = null;
+        let invCapWS = null;
 
         const openWS = async () => {
             const pathname = window.location.pathname;
@@ -125,6 +135,7 @@ export default function ListHandler(props){
             }
             
             if (pathname.includes('/store-dashboard') || pathname.includes('/my-inventory') ||pathname.includes("/view/user-inventory")) {
+                console.log("aa")
                 prodWS = connectToWS("/user/inventory/product/update");
                 
                 prodWS.addEventListener('open', () => { 
@@ -134,6 +145,13 @@ export default function ListHandler(props){
                 prodWS.addEventListener('message', (message) => {
                     getData();
                 })
+
+                invCapWS = connectToWS("/user/inventory/update");
+
+                invCapWS.addEventListener("open", () => {
+                    console.log("list handler can now send updates to inventory capacity");
+                })
+
             }
 
             if (pathname.includes("/sale-records")) {
@@ -147,15 +165,15 @@ export default function ListHandler(props){
                     getData();
                 });
             }
+            setSocket({
+                userSocket: userWS,
+                prodSocket: prodWS,
+                inventories: invWS,
+                salesSocket: saleWS,
+                invCapacitySocket: invCapWS
+            })
         }
 
-
-        setSocket({
-            userSocket: userWS,
-            prodSocket: prodWS,
-            inventories: invWS,
-            salesSocket: saleWS
-        })
         getData();
         openWS();
     }, [])
@@ -194,6 +212,93 @@ export default function ListHandler(props){
         }
     }
 
+    const [modal, setModal] = useState({
+        showEdit: false,
+        showDelete: false
+    })
+
+    const [editProd, setEditProd] = useState({
+        productName: "",
+        barcode: "",
+        quantity: 0,
+        price: 0,
+    })
+
+    const [editErr, setEditErr] = useState({
+        error: false,
+        message: ''
+    })
+
+    const handleDelete = async (e) => {
+        const target = (e == undefined)? undefined : e.target;
+        getRowData(target)
+
+        if (target != undefined && target != null) {
+            if (target.id == "submit-delete") {
+                const res = await (await AuthService.deleteProduct(editProd)).data;
+                if (res.deleted) {
+                    socket.prodSocket.send(JSON.stringify("PRODUCT_UPDATE"));
+                    socket.invCapacitySocket.send(JSON.stringify("PRODUCT_UPDATE"));
+                }
+            }
+        }
+
+        setModal({
+            showDelete: !modal.showDelete,
+            showEdit: false
+        })
+    }
+
+    const handleEdit = async (e) => {
+        const target = (e == undefined)? undefined : e.target;
+        getRowData(target)
+        if (target != undefined && target != null) {
+            if (target.id == "submit-edit") {
+                const res = await (await AuthService.updateProduct(editProd)).data;
+                if (res.updated) {
+                    socket.prodSocket.send(JSON.stringify("PRODUCT_UPDATE"));
+                    socket.invCapacitySocket.send(JSON.stringify("PRODUCT_UPDATE"));
+                }else {
+                    setEditErr({
+                        error: true,
+                        message: res.update_error
+                    });
+                    setTimeout(() => {
+                        setEditErr({
+                            error: false,
+                            message: ""
+                        });
+                    }, 4000);
+                }
+            }
+        }
+        setModal({
+            showDelete: false,
+            showEdit: !modal.showEdit
+        })
+    }
+
+    const getRowData = (button) => {
+        if (button !== undefined && button !== null) {
+            if (button.id == "edit" || button.id == "delete") {
+                const row = button.parentElement.parentElement.children;
+                setEditProd({
+                    productName: row[1].innerText,
+                    barcode: row[2].innerText,
+                    quantity: row[3].innerText,
+                    price: row[4].innerText,
+                });
+            }
+        }
+    }
+
+    const handleInput = (e) => {
+        setEditProd({
+            ...editProd,
+            [e.target.id] : e.target.value
+        })
+    }
+
     return (
         <div id="list-container">
             <div className='d-flex justify-content-center pe-2 ps-2 mt-3'>
@@ -208,6 +313,9 @@ export default function ListHandler(props){
             </div>
             <div className="d-flex justify-content-center align-items-center">
                 <div className={`${(props.size == "full")? "table-container-full" : "table-container"} col-12 col-lg-11 pe-2 ps-2`}>
+                    
+                    {(editErr.error)? <Alert variant='danger' className='mt-3'>Edit Error: {editErr.message}</Alert> : null}
+
                     <table className="table table-striped border">
                       <thead className='table-head'>
                         <tr>
@@ -236,11 +344,25 @@ export default function ListHandler(props){
                                             <th key={Math.random()} scope="row">{item[key]}</th>
                                         )
                                     }else {
-                                        return (
-                                            <th key={Math.random()} scope="row">
-                                                <Button id={item[key]} onClick={handleView}>View</Button>
-                                            </th>
-                                        )
+                                        if (window.location.pathname != "/my-inventory" && list.isViewable) {
+                                            return (
+                                                <th key={Math.random()} scope="row">
+                                                    <Button id={item[key]} onClick={handleView}>View</Button>
+                                                </th>
+                                            )
+                                        }else if (window.location.pathname == "/my-inventory") {
+                                            return (
+                                                <th key={Math.random()} scope="row" className='d-flex'>
+                                                    <button type="button" id="edit" className='me-2 btn btn-primary' onClick={handleEdit}>Edit</button>
+                                                    <button type="button" id="delete" className='btn btn-danger' onClick={handleDelete}>Delete</button>
+                                                </th>
+                                            )
+                                        }else {
+                                            return (
+                                                <th key={Math.random()} scope="row">No Action Available</th>
+                                            )
+                                        }
+
                                     }
                                   })}
                                 </tr>
@@ -256,6 +378,57 @@ export default function ListHandler(props){
                     
                 </div>
             </div>
+            
+            <Modal show={modal.showEdit} onHide={handleEdit}>
+              <Modal.Header closeButton>
+                <Modal.Title>Edit Product</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <p>Update product by using the field below</p>
+                <Form>
+                    <Form.Label>Product Name</Form.Label>
+                    <Form.Control id="productName" onChange={handleInput} value={editProd.productName}></Form.Control>
+
+                    <Form.Label>Barcode</Form.Label>
+                    <Form.Control id="barcode" onChange={handleInput} value={editProd.barcode}></Form.Control>
+
+                    <Form.Label>Quantity</Form.Label>
+                    <Form.Control id="quantity" onChange={handleInput} value={editProd.quantity}></Form.Control>
+
+                    <Form.Label>Price</Form.Label>
+                    <Form.Control id="price" type="number" onChange={handleInput} value={editProd.price}></Form.Control>
+                </Form>
+              </Modal.Body>
+              <Modal.Footer>
+                <Button variant="secondary" onClick={handleEdit}>
+                  Close
+                </Button>
+                <Button variant="primary" id="submit-edit" onClick={handleEdit}>
+                  Save Changes
+                </Button>
+              </Modal.Footer>
+            </Modal>
+
+            <Modal show={modal.showDelete} onHide={handleDelete}>
+              <Modal.Header closeButton>
+                <Modal.Title>Notice!</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <p>Are you sure you want to delete this product?</p>
+                <p>Product Name: {editProd.productName}</p>
+                <p>Product Barcode: {editProd.barcode}</p>
+                <p>Product Quantity: {editProd.quantity}</p>
+                <p>Product Price: {editProd.price}</p>
+              </Modal.Body>
+              <Modal.Footer>
+                <Button variant="secondary" onClick={handleDelete}>
+                  Close
+                </Button>
+                <Button variant="danger" id="submit-delete" onClick={handleDelete}>
+                  Delete
+                </Button>
+              </Modal.Footer>
+            </Modal>
         </div>
     );
 }
