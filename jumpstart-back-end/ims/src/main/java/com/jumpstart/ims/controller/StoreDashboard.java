@@ -127,13 +127,21 @@ public class StoreDashboard {
     }
 
     @PostMapping("/add-product")
-    public Map<String, ProductDTO> addProduct(@RequestHeader("Authorization") String token,
+    public Map<String, Object> addProduct(@RequestHeader("Authorization") String token,
             @RequestBody ProductDTO product) {
         String processedToken = token.split("Bearer ")[1];
-        Map<String, ProductDTO> result = new HashMap<String, ProductDTO>();
+        Map<String, Object> result = new HashMap<String, Object>();
         SimpleDateFormat dateformat = new SimpleDateFormat("MMM-dd-yyyy HH:mm:ss");
 
         Inventory inventory = userService.getInventory(processedToken);
+
+        if ((inventory.getTotalItems() + product.getQuantity()) > inventory.getCapacity()) {
+            result.put("product_error", true);
+            result.put("error_message",
+                    "The Quantity of the given product data has exceeded the current capacity of the inventory.");
+            return result;
+        }
+
         Set<Product> products = inventory.getProducts();
         Product newProduct = productRepository.save(new Product(product.getProductName(), "N/A", product.getBarcode(),
                 product.getQuantity(), product.getPrice(), new Date(), inventory));

@@ -72,7 +72,7 @@ public class UserService {
                         roleRepository.findByRole("ROLE_USER"),
                         new Date()));
 
-        Inventory inventory = inventoryRepository.save(new Inventory(0, new Date(), 100));
+        Inventory inventory = inventoryRepository.save(new Inventory(0, new Date(), 10000));
 
         Store store = storeRepository.save(new Store(
                 storeInfo.getStoreName(),

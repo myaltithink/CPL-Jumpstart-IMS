@@ -105,6 +105,15 @@ export default function InventoryCapacity(props){
                         quantity: formData.quantity,
                         price: formData.price,
                     })).data
+
+                    if (product.product_error) {
+                        setFormData({
+                            ...formData,
+                            quantityError: product.error_message
+                        })
+                        return;
+                    }
+
                     socket.capacityWS.send(JSON.stringify("UPDATE_CAPACITY"));
                     socket.prodListWS.send(JSON.stringify(product.newProduct));
                 }
