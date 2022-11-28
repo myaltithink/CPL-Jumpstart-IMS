@@ -25,6 +25,10 @@
     height: 40vh !important;
     border-bottom: 1px gray solid;
   }
+  
+.login-container {
+  height: fit-content;
+}
 }
 
 

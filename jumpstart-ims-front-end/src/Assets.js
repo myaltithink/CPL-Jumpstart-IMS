@@ -11,7 +11,7 @@ export const assets = {
     instagramLogo: instagramLogo
 };
 
-export const API = "http://localhost:8080";
+export const API = "https://ca88-120-29-111-79.ap.ngrok.io:8080" //"http://localhost:8080";
 export const WS = "ws://localhost:3000";
 export const emptyRegex = /^\s*$/;
 export const numberRegex = /^[0-9]*$/;
