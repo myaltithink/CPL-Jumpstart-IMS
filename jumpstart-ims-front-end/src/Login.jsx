@@ -53,8 +53,8 @@ return (
         <div className='col-12 col-lg-10 col-xl-8'>
           <div className=''>
             <h5>Welcome to Jumpstart Inventory Management System</h5>
-            <p>Manage your Jumpstart inventory by Logging on</p>
-            <p>If you are having any issue, kindly send us a message using the <Link to='#'>Contact Us Page</Link> or send us a message at our email address <Link to="#">tarucisaac@gmail.com</Link></p>
+            <p>Manage your Jumpstart inventory by Signing in</p>
+            <p>If you are having any issue, kindly send us a message using the <Link to='/contact-us'>Contact Us Page</Link> or send us a message at our email address <Link to="#">tarucisaac@gmail.com</Link></p>
           </div>
           <form className='border border-3 rounded shadow-lg p-3'>
             <h3>Jumpstart IMS Login</h3>

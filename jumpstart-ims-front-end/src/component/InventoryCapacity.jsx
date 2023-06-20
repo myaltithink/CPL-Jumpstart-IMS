@@ -99,6 +99,10 @@ export default function InventoryCapacity(props){
                     }
                 }
                 if (e.target.classList[0] == "submit-product") {
+                    setFormData({
+                        ...formData,
+                        hasError: true
+                    })
                     const product = await (await AuthService.addProduct({
                         productName: formData.productName,
                         barcode: formData.barcode,

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { API } from "../Assets";
+import { API, WS } from "../Assets";
 import { getCookie } from "../main";
 
 const header = {
@@ -94,7 +94,7 @@ async function checkAdminPermission(){
 
 
 export function connectToWS(endpoint){
-    const socket = new WebSocket('ws://localhost:3000' + endpoint);
+    const socket = new WebSocket(WS + endpoint);
     
     socket.addEventListener('error', () => {
         console.log('failed to connect to websocket with endpoint ' + endpoint);

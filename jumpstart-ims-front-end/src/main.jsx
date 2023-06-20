@@ -63,7 +63,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                 <Route path='/admin-dashboard' element={ <AdminRoute user={user} component={<AdminDashboard/>}/> }/>
                 <Route path='/my-inventory' element={<UserRoute user={user} component={<UserInventory/>}/>}/>
                 <Route path='/user-inventories' element={<AdminRoute user={user} component={<UserInventories/>}/>}/>
+
                 <Route path='/view/user-inventory' element={<AdminRoute user={user} component={<UserInventory/>}/>}/>
+                
                 <Route path='/sale-records' element={<UserRoute user={user} component={<RecordSales/>}/>}/>
                 <Route path='/sale-records/record-list' element={<UserRoute user={user} component={<SaleRecords/>}/>}/>
                 <Route path='/view/sale-record' element={<UserRoute user={user} component={<SaleRecords/>}/>}/>

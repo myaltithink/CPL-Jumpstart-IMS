@@ -134,7 +134,7 @@ export default function ListHandler(props){
                 })
             }
             
-            if (pathname.includes('/store-dashboard') || pathname.includes('/my-inventory') ||pathname.includes("/view/user-inventory")) {
+            if (pathname.includes('/store-dashboard') || pathname.includes('/my-inventory') || pathname.includes("/view/user-inventory")) {
                 console.log("aa")
                 prodWS = connectToWS("/user/inventory/product/update");
                 
@@ -154,7 +154,7 @@ export default function ListHandler(props){
 
             }
 
-            if (pathname.includes("/sale-records")) {
+            if (pathname.includes("/sale-records") || pathname.includes("/view/sale-record")) {
                 saleWS = connectToWS("/sales/update");
 
                 saleWS.addEventListener("open", () => {
